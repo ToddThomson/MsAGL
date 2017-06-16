@@ -124,11 +124,11 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MsAGL\Drawing\Drawing.csproj">
+    <ProjectReference Include="..\Drawing\Drawing.csproj">
       <Project>{c3a58d05-dffb-4e75-a498-d9e1ad9d6fc0}</Project>
       <Name>Drawing</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MsAGL\MsAGL\MsAGL.csproj">
+    <ProjectReference Include="..\MsAGL\MsAGL.csproj">
       <Project>{7078dad3-b1c8-4e99-9c83-dff6647c7cc9}</Project>
       <Name>MsAGL</Name>
     </ProjectReference>

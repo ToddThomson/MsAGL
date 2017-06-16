@@ -132,13 +132,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GraphControl\GraphControl.csproj">
-      <Project>{24B80892-9828-4139-8D85-34B9733329AB}</Project>
-      <Name>GraphControl</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MsAGL\Drawing\Drawing.csproj">
       <Project>{C3A58D05-DFFB-4E75-A498-D9E1AD9D6FC0}</Project>
       <Name>Drawing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MsAGL\GraphControl\GraphControl.csproj">
+      <Project>{24b80892-9828-4139-8d85-34b9733329ab}</Project>
+      <Name>GraphControl</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
