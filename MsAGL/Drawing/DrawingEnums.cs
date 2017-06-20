@@ -6,6 +6,7 @@ namespace Microsoft.Msagl.Drawing {
     internal sealed class Utils {
 
         Utils() { }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public static bool ContainsStyle(Style style, System.Collections.ArrayList styles) {
             foreach (Style s in styles)
@@ -15,16 +16,10 @@ namespace Microsoft.Msagl.Drawing {
             return false;
         }
 
-
-
-
-
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1304:SpecifyCultureInfo", MessageId = "System.String.ToLower")]
         public static string ShapeToString(string attr, Shape shape) {
             return attr + shape.ToString().ToLower();
         }
-
 
         /// <summary>
         /// Quotes the string

@@ -119,6 +119,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Graph.cs" />
     <Compile Include="GraphAttr.cs" />
+    <Compile Include="GraphPresenter.cs" />
     <Compile Include="GraphReader.cs" />
     <Compile Include="GraphWriter.cs" />
     <Compile Include="HorizontalConstraintsForLayeredLayout.cs" />

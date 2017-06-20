@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace Microsoft.Msagl.Drawing {
+    
     /// <summary>
     /// shows the connection to the graph status
     /// </summary>

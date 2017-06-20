@@ -7,7 +7,8 @@ namespace Microsoft.Msagl.Drawing {
     ///<summary>
     /// keeps constraints for layered layouts
     ///</summary>
-    public class LayerConstraints {
+    public class LayerConstraints
+    {
         readonly HorizontalConstraintsForLayeredLayout horizontalConstraints =
             new HorizontalConstraintsForLayeredLayout();
 
@@ -16,11 +17,13 @@ namespace Microsoft.Msagl.Drawing {
         /// <summary>
         /// _minLayerOfDrawingGraph, _maxLayerOfDrawingGraph, same layer, up-down, up-down vertical and left-right constraints are supported by this class
         /// </summary>
-        internal VerticalConstraintsForLayeredLayout VerticalConstraints {
+        internal VerticalConstraintsForLayeredLayout VerticalConstraints
+        {
             get { return verticalConstraints; }
         }
 
-        internal HorizontalConstraintsForLayeredLayout HorizontalConstraints {
+        internal HorizontalConstraintsForLayeredLayout HorizontalConstraints
+        {
             get { return horizontalConstraints; }
         }
 
@@ -29,8 +32,9 @@ namespace Microsoft.Msagl.Drawing {
         /// </summary>
         /// <param name="leftNode"></param>
         /// <param name="rightNode"></param>
-        public void AddLeftRightConstraint(Node leftNode, Node rightNode) {
-            HorizontalConstraints.LeftRightConstraints.Insert(new Tuple<Node, Node>(leftNode, rightNode));
+        public void AddLeftRightConstraint( Node leftNode, Node rightNode )
+        {
+            HorizontalConstraints.LeftRightConstraints.Insert( new Tuple<Node, Node>( leftNode, rightNode ) );
         }
 
         /// <summary>
@@ -38,33 +42,37 @@ namespace Microsoft.Msagl.Drawing {
         /// </summary>
         /// <param name="leftNode"></param>
         /// <param name="rightNode"></param>
-        public void RemoveLeftRightConstraint(Node leftNode, Node rightNode) {
-            HorizontalConstraints.LeftRightConstraints.Remove(new Tuple<Node, Node>(leftNode, rightNode));
+        public void RemoveLeftRightConstraint( Node leftNode, Node rightNode )
+        {
+            HorizontalConstraints.LeftRightConstraints.Remove( new Tuple<Node, Node>( leftNode, rightNode ) );
         }
 
 
         /// <summary>
         /// Pins the nodes of the list to the max layer and 
         /// </summary>
-        public void PinNodesToMaxLayer(params Node[] nodes) {
-            for (int i = 0; i < nodes.Length; i++)
-                VerticalConstraints.PinNodeToMaxLayer(nodes[i]);
+        public void PinNodesToMaxLayer( params Node[] nodes )
+        {
+            for ( int i = 0; i < nodes.Length; i++ )
+                VerticalConstraints.PinNodeToMaxLayer( nodes[ i ] );
         }
 
         /// <summary>
         /// Pins the nodes of the list to the min layer and 
         /// </summary>
-        public void PinNodesToMinLayer(params Node[] nodes) {
-            for (int i = 0; i < nodes.Length; i++)
-                VerticalConstraints.PinNodeToMinLayer(nodes[i]);
+        public void PinNodesToMinLayer( params Node[] nodes )
+        {
+            for ( int i = 0; i < nodes.Length; i++ )
+                VerticalConstraints.PinNodeToMinLayer( nodes[ i ] );
         }
 
         /// <summary>
         /// adds a same layer constraint
         /// </summary>
-        public void PinNodesToSameLayer(params Node[] nodes) {
-            for (int i = 1; i < nodes.Length; i++)
-                VerticalConstraints.SameLayerConstraints.Insert(new Tuple<Node, Node>(nodes[0], nodes[i]));
+        public void PinNodesToSameLayer( params Node[] nodes )
+        {
+            for ( int i = 1; i < nodes.Length; i++ )
+                VerticalConstraints.SameLayerConstraints.Insert( new Tuple<Node, Node>( nodes[ 0 ], nodes[ i ] ) );
         }
 
 
@@ -72,19 +80,21 @@ namespace Microsoft.Msagl.Drawing {
         /// these nodes belong to the same layer and are adjacent positioned from left to right
         /// </summary>
         /// <param name="neighbors"></param>
-        public void AddSameLayerNeighbors(params Node[] neighbors) {
-            AddSameLayerNeighbors(new List<Node>(neighbors));
+        public void AddSameLayerNeighbors( params Node[] neighbors )
+        {
+            AddSameLayerNeighbors( new List<Node>( neighbors ) );
         }
 
         /// <summary>
         /// these nodes belong to the same layer and are adjacent positioned from left to right
         /// </summary>
         /// <param name="neighbors"></param>
-        public void AddSameLayerNeighbors(IEnumerable<Node> neighbors) {
-            var neibs = new List<Node>(neighbors);
-            HorizontalConstraints.AddSameLayerNeighbors(neibs);
-            for (int i = 0; i < neibs.Count - 1; i++)
-                VerticalConstraints.SameLayerConstraints.Insert(new Tuple<Node, Node>(neibs[i], neibs[i + 1]));
+        public void AddSameLayerNeighbors( IEnumerable<Node> neighbors )
+        {
+            var neibs = new List<Node>( neighbors );
+            HorizontalConstraints.AddSameLayerNeighbors( neibs );
+            for ( int i = 0; i < neibs.Count - 1; i++ )
+                VerticalConstraints.SameLayerConstraints.Insert( new Tuple<Node, Node>( neibs[ i ], neibs[ i + 1 ] ) );
         }
 
         /// <summary>
@@ -92,15 +102,17 @@ namespace Microsoft.Msagl.Drawing {
         /// </summary>
         /// <param name="leftNode"></param>
         /// <param name="rightNode"></param>
-        public void AddSameLayerNeighbors(Node leftNode, Node rightNode) {
-            HorizontalConstraints.AddSameLayerNeighborsPair(leftNode, rightNode);
-            VerticalConstraints.SameLayerConstraints.Insert(new Tuple<Node, Node>(leftNode, rightNode));
+        public void AddSameLayerNeighbors( Node leftNode, Node rightNode )
+        {
+            HorizontalConstraints.AddSameLayerNeighborsPair( leftNode, rightNode );
+            VerticalConstraints.SameLayerConstraints.Insert( new Tuple<Node, Node>( leftNode, rightNode ) );
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public void RemoveAllConstraints() {
+        public void RemoveAllConstraints()
+        {
             HorizontalConstraints.Clear();
             VerticalConstraints.Clear();
         }
@@ -111,8 +123,9 @@ namespace Microsoft.Msagl.Drawing {
         /// </summary>
         /// <param name="upperNode"></param>
         /// <param name="lowerNode"></param>
-        public void AddUpDownConstraint(Node upperNode, Node lowerNode) {
-            VerticalConstraints.UpDownConstraints.Insert(new Tuple<Node, Node>(upperNode, lowerNode));
+        public void AddUpDownConstraint( Node upperNode, Node lowerNode )
+        {
+            VerticalConstraints.UpDownConstraints.Insert( new Tuple<Node, Node>( upperNode, lowerNode ) );
         }
 
         /// <summary>
@@ -120,26 +133,29 @@ namespace Microsoft.Msagl.Drawing {
         /// </summary>
         /// <param name="upperNode"></param>
         /// <param name="lowerNode"></param>
-        public void AddUpDownVerticalConstraint(Node upperNode, Node lowerNode) {
-            VerticalConstraints.UpDownConstraints.Insert(new Tuple<Node, Node>(upperNode, lowerNode));
-            HorizontalConstraints.UpDownVerticalConstraints.Insert(new Tuple<Node, Node>(upperNode, lowerNode));
+        public void AddUpDownVerticalConstraint( Node upperNode, Node lowerNode )
+        {
+            VerticalConstraints.UpDownConstraints.Insert( new Tuple<Node, Node>( upperNode, lowerNode ) );
+            HorizontalConstraints.UpDownVerticalConstraints.Insert( new Tuple<Node, Node>( upperNode, lowerNode ) );
         }
 
         /// <summary>
         /// adds a sequence of constraints where the top node center is positioned exactly above the lower node center
         /// </summary>        
-        public void AddSequenceOfUpDownVerticalConstraint(params Node[]  nodes) {
-            for (int i = 0; i < nodes.Length - 1; i++)
-                AddUpDownVerticalConstraint(nodes[i], nodes[i + 1]);
+        public void AddSequenceOfUpDownVerticalConstraint( params Node[] nodes )
+        {
+            for ( int i = 0; i < nodes.Length - 1; i++ )
+                AddUpDownVerticalConstraint( nodes[ i ], nodes[ i + 1 ] );
         }
 
         /// <summary>
         /// adds vertical up down constraints udDownIds[0]->upDownIds[1]-> ... -> upDownsIds[upDownIds.Length-1]
         /// </summary>
         /// <param name="upDownNodes"></param>
-        public void AddUpDownVerticalConstraints(params Node[] upDownNodes) {
-            for (int i = 1; i < upDownNodes.Length; i++)
-                AddUpDownVerticalConstraint(upDownNodes[i - 1], upDownNodes[i]);
+        public void AddUpDownVerticalConstraints( params Node[] upDownNodes )
+        {
+            for ( int i = 1; i < upDownNodes.Length; i++ )
+                AddUpDownVerticalConstraint( upDownNodes[ i - 1 ], upDownNodes[ i ] );
         }
     }
 }

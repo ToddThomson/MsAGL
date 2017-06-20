@@ -133,10 +133,13 @@ namespace Microsoft.Msagl.GraphControl {
             return pathGeometry;
         }
 
-    
-        double PathStrokeThickness { get {
-            return PathStrokeThicknessFunc != null ? PathStrokeThicknessFunc() : this.Edge.Attr.LineWidth;
-        } }
+        double PathStrokeThickness
+        {
+            get
+            {
+                return PathStrokeThicknessFunc != null ? PathStrokeThicknessFunc() : this.Edge.Attr.LineWidth;
+            }
+        }
 
         internal Path CurvePath { get; set; }
         internal Path SourceArrowHeadPath { get; set; }

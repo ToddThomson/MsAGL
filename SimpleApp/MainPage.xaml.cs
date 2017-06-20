@@ -24,7 +24,7 @@ namespace SimpleApp
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        RelativePanel panel = new RelativePanel();
+        //RelativePanel panel = new RelativePanel();
 
         public MainPage()
         {
@@ -37,7 +37,7 @@ namespace SimpleApp
             RelativePanel.SetAlignLeftWithPanel( this, true );
             RelativePanel.SetAlignBottomWithPanel( this, true );
 
-            this.Content = panel;
+            //this.Content = panel;
 
             Loaded += MainPage_Loaded;
         }
@@ -45,12 +45,23 @@ namespace SimpleApp
         private void MainPage_Loaded( object sender, RoutedEventArgs e )
         {
             GraphViewer graphViewer = new GraphViewer();
-            graphViewer.BindToPanel( panel );
+            graphViewer.BindToPanel( outputGrid );
             Graph graph = new Graph();
  
             graph.AddEdge( "A", "B" );
             graph.Attr.LayerDirection = LayerDirection.LR;
+
             graphViewer.Graph = graph;
+        }
+
+        private void Page_SizeChanged( object sender, SizeChangedEventArgs e )
+        {
+
+        }
+
+        private void ToggleButton_Click( object sender, RoutedEventArgs e )
+        {
+            Splitter.IsPaneOpen = !Splitter.IsPaneOpen;
         }
     }
 }

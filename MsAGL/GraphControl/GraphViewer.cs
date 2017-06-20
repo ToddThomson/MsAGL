@@ -73,8 +73,16 @@ namespace Microsoft.Msagl.GraphControl
 {
     public class GraphViewer : IViewer
     {
-        Path _targetArrowheadPathForRubberEdge;
+        #region Events
 
+        public event EventHandler LayoutStarted;
+        public event EventHandler LayoutComplete;
+
+        #endregion
+
+        #region Fields
+
+        Path _targetArrowheadPathForRubberEdge;
         Path _rubberEdgePath;
         Path _rubberLinePath;
         Point _sourcePortLocationForEdgeRouting;
@@ -85,24 +93,12 @@ namespace Microsoft.Msagl.GraphControl
         Point _pointerPressedPositionInGraph;
         bool _pointerPressedPositionInGraph_initialized;
 
-        Ellipse _sourcePortCircle;
-        protected Ellipse TargetPortCircle { get; set; }
-
         UwpPoint _objectUnderMouseDetectionLocation;
 
-        public event EventHandler LayoutStarted;
-        public event EventHandler LayoutComplete;
-
-        /*
-        readonly DispatcherTimer layoutThreadCheckingTimer = new DispatcherTimer();
-        */
-
-        /// <summary>
-        /// Set to true to perform layout in an async task.
-        /// </summary>
-        public bool RunLayoutAsync = false;
+        Ellipse _sourcePortCircle;
 
         readonly Canvas _graphCanvas = new Canvas();
+
         Graph _drawingGraph;
         Pointer _graphCanvasCapturedPointer;
 
@@ -133,13 +129,31 @@ namespace Microsoft.Msagl.GraphControl
             get { return _drawingGraph.GeometryGraph; }
         }
 
+        #endregion
+
+        #region Properties
+
         /// <summary>
         /// The canvas to draw the graph.
         /// </summary>
-        public Canvas GraphCanvas
-        {
-            get { return _graphCanvas; }
-        }
+        public Canvas GraphCanvas { get { return _graphCanvas; } }
+
+        public LayoutEditor LayoutEditor { get { return layoutEditor; } }
+
+        protected Ellipse TargetPortCircle { get; set; }
+
+        #endregion
+
+        /*
+        readonly DispatcherTimer layoutThreadCheckingTimer = new DispatcherTimer();
+        */
+
+        /// <summary>
+        /// Set to true to perform layout in an async task.
+        /// </summary>
+        public bool RunLayoutAsync = false;
+
+        #region Constructor(s)
 
         public GraphViewer()
         {
@@ -167,7 +181,9 @@ namespace Microsoft.Msagl.GraphControl
             _graphCanvas.Height = 500;
         }
 
-        #region WPF stuff
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// adds the main panel of the viewer to the children of the parent
@@ -178,6 +194,24 @@ namespace Microsoft.Msagl.GraphControl
             panel.Children.Add( GraphCanvas );
             GraphCanvas.UpdateLayout();
         }
+
+        /// <summary>
+        /// keeps centerOfZoom pinned to the screen and changes the scale by zoomFactor
+        /// </summary>
+        /// <param name="zoomFactor"></param>
+        /// <param name="centerOfZoom"></param>
+        public void ZoomAbout( double zoomFactor, UwpPoint centerOfZoom )
+        {
+            var scale = zoomFactor * FitFactor;
+            var centerOfZoomOnScreen = _graphCanvas.TransformToVisual( (FrameworkElement)_graphCanvas.Parent ).TransformPoint( centerOfZoom );
+
+            SetTransform( scale, centerOfZoomOnScreen.X - centerOfZoom.X * scale,
+                         centerOfZoomOnScreen.Y + centerOfZoom.Y * scale );
+        }
+
+        #endregion
+
+        #region Event Handlers
 
         void ClickCounterElapsed( object sender, EventArgs e )
         {
@@ -221,6 +255,7 @@ namespace Microsoft.Msagl.GraphControl
                 ViewChangeEvent( null, null );
             }
         }
+        
         /*
                 Tuple<string, VoidDelegate>[] CreateToggleZoomLevelMenuCoupleForNode(VNode vNode) {
                     var list = new List<Tuple<string, VoidDelegate>>();
@@ -380,24 +415,7 @@ namespace Microsoft.Msagl.GraphControl
             PointerReleased?.Invoke( this, CreatePointerEventArgs( e ) );
         }
 
-        /// <summary>
-        /// keeps centerOfZoom pinned to the screen and changes the scale by zoomFactor
-        /// </summary>
-        /// <param name="zoomFactor"></param>
-        /// <param name="centerOfZoom"></param>
-        public void ZoomAbout( double zoomFactor, UwpPoint centerOfZoom )
-        {
-            var scale = zoomFactor * FitFactor;
-            var centerOfZoomOnScreen = _graphCanvas.TransformToVisual( (FrameworkElement)_graphCanvas.Parent ).TransformPoint( centerOfZoom );
-
-            SetTransform( scale, centerOfZoomOnScreen.X - centerOfZoom.X * scale,
-                         centerOfZoomOnScreen.Y + centerOfZoom.Y * scale );
-        }
-
-        public LayoutEditor LayoutEditor
-        {
-            get { return layoutEditor; }
-        }
+        #endregion
 
         void UpdateHitObjectUnderPointerPressedLocation( UwpPoint pt )
         {
@@ -438,44 +456,25 @@ namespace Microsoft.Msagl.GraphControl
         {
             FrameworkElement ret;
 
-            var vNode = viewerObject as VNode;
-
-            if ( vNode != null )
+            if ( viewerObject is VNode vNode )
             {
                 ret = vNode.FrameworkElementOfNodeForLabel ?? vNode.BoundaryPath;
             }
+            else if ( viewerObject is VLabel vLabel )
+            {
+                ret = vLabel.FrameworkElement;
+            }
+            else if ( viewerObject is VEdge vEdge )
+            {
+                ret = vEdge.CurvePath;
+            }
             else
             {
-                var vLabel = viewerObject as VLabel;
-
-                if ( vLabel != null )
-                {
-                    ret = vLabel.FrameworkElement;
-                }
-                else
-                {
-                    var vEdge = viewerObject as VEdge;
-
-                    if ( vEdge != null )
-                    {
-                        ret = vEdge.CurvePath;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException(
-#if DEBUG
-                            "Unexpected object type in GraphViewer"
-#endif
-                            );
-                    }
-                }
+                throw new InvalidOperationException( "Unexpected object type in GraphViewer" );
             }
+           
             if ( ret == null )
-                throw new InvalidOperationException(
-#if DEBUG
-                    "did not find a framework element!"
-#endif
-                    );
+                throw new InvalidOperationException( "Did not find a framework element!" );
 
             return ret;
         }
@@ -581,14 +580,14 @@ namespace Microsoft.Msagl.GraphControl
             get { return CurrentScale / FitFactor; }
         }
 
-        #endregion
-
-        #region IViewer stuff
+        #region IViewer
 
         public event EventHandler<EventArgs> ViewChangeEvent;
+
         public event EventHandler<MsaglPointerEventArgs> PointerPressed;
         public event EventHandler<MsaglPointerEventArgs> PointerMoved;
         public event EventHandler<MsaglPointerEventArgs> PointerReleased;
+
         public event EventHandler<ObjectUnderMouseCursorChangedEventArgs> ObjectUnderMouseCursorChanged;
 
         public IViewerObject ObjectUnderPointer
@@ -786,6 +785,7 @@ namespace Microsoft.Msagl.GraphControl
                 ProcessGraph();
             }
         }
+        
         //
         //        void Dumpxy() {
         //            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\tmp\dumpxy")) {
@@ -802,13 +802,13 @@ namespace Microsoft.Msagl.GraphControl
         //            }
         //        }
 
-
         const double DesiredPathThicknessInInches = 0.016;
 
         readonly Dictionary<DrawingObject, Func<DrawingObject, FrameworkElement>> registeredCreators =
             new Dictionary<DrawingObject, Func<DrawingObject, FrameworkElement>>();
 
         readonly ClickCounter clickCounter;
+
         public string MsaglFileToSave;
 
         double GetBorderPathThickness()
@@ -986,13 +986,9 @@ namespace Microsoft.Msagl.GraphControl
                 }
         */
 
-
-
-
         //        void SetupTimerOnViewChangeEvent(object sender, EventArgs e) {
         //            SetupRoutingTimer();
         //        }
-
 
         /*
                 void TestCorrectness(GeometryGraph oGraph, Set<Drawing.Node> oDrawingNodes, Set<DrawingEdge> oDrawgingEdges) {
@@ -1344,6 +1340,7 @@ namespace Microsoft.Msagl.GraphControl
         void SetVEdgeLabel( DrawingEdge edge, VEdge vEdge, int zIndex )
         {
             FrameworkElement frameworkElementForEdgeLabel;
+
             if ( !drawingObjectsToFrameworkElements.TryGetValue( edge, out frameworkElementForEdgeLabel ) )
             {
                 drawingObjectsToFrameworkElements[ edge ] =
@@ -1352,6 +1349,7 @@ namespace Microsoft.Msagl.GraphControl
             }
 
             vEdge.VLabel = (VLabel)frameworkElementForEdgeLabel.Tag;
+
             if ( frameworkElementForEdgeLabel.Parent == null )
             {
                 _graphCanvas.Children.Add( frameworkElementForEdgeLabel );
@@ -1786,6 +1784,7 @@ namespace Microsoft.Msagl.GraphControl
         {
             _graphCanvas.Children.Remove( _rubberLinePath );
             _rubberLinePath = null;
+
             _graphCanvas.Children.Remove( _targetArrowheadPathForRubberEdge );
             _targetArrowheadPathForRubberEdge = null;
         }
@@ -1825,6 +1824,7 @@ namespace Microsoft.Msagl.GraphControl
             var vNode = CreateVNode( drawingNode );
             LayoutEditor.AttachLayoutChangeEvent( vNode );
             LayoutEditor.CleanObstacles();
+
             return vNode;
         }
 
@@ -1875,7 +1875,9 @@ namespace Microsoft.Msagl.GraphControl
         {
             var geomEdge = GeometryGraphCreator.CreateGeometryEdgeFromDrawingEdge( drawingEdge );
             var geomGraph = _drawingGraph.GeometryGraph;
+
             LayoutHelpers.RouteAndLabelEdges( geomGraph, _drawingGraph.LayoutAlgorithmSettings, new[] { geomEdge } );
+
             return CreateEdge( drawingEdge, _drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings );
         }
 
@@ -1889,13 +1891,16 @@ namespace Microsoft.Msagl.GraphControl
         public void SetSourcePortForEdgeRouting( Point portLocation )
         {
             _sourcePortLocationForEdgeRouting = portLocation;
+
             if ( _sourcePortCircle == null )
             {
                 _sourcePortCircle = CreatePortPath();
                 _graphCanvas.Children.Add( _sourcePortCircle );
             }
+
             _sourcePortCircle.Width = _sourcePortCircle.Height = UnderlyingPolylineCircleRadius;
             _sourcePortCircle.StrokeThickness = _sourcePortCircle.Width / 10;
+
             Common.PositionFrameworkElement( _sourcePortCircle, portLocation, 1 );
         }
 
@@ -2063,15 +2068,18 @@ namespace Microsoft.Msagl.GraphControl
 
         void MakeRoomForNewNode( Drawing.Node drawingNode )
         {
-            IncrementalDragger incrementalDragger = new IncrementalDragger( new[] { drawingNode.GeometryNode },
-                                                                           Graph.GeometryGraph,
-                                                                           Graph.LayoutAlgorithmSettings );
+            IncrementalDragger incrementalDragger = new IncrementalDragger( 
+                new[] { drawingNode.GeometryNode },
+                Graph.GeometryGraph,
+                Graph.LayoutAlgorithmSettings );
+
             incrementalDragger.Drag( new Point() );
 
             foreach ( var n in incrementalDragger.ChangedGraph.Nodes )
             {
                 var dn = (Drawing.Node)n.UserData;
                 var vn = drawingObjectsToIViewerObjects[ dn ] as VNode;
+
                 if ( vn != null )
                     vn.Invalidate();
             }
@@ -2080,6 +2088,7 @@ namespace Microsoft.Msagl.GraphControl
             {
                 var dn = (Drawing.Edge)n.UserData;
                 var ve = drawingObjectsToIViewerObjects[ dn ] as VEdge;
+
                 if ( ve != null )
                     ve.Invalidate();
             }

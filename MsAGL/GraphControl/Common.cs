@@ -1,9 +1,12 @@
+#region Namespaces
 
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 using UwpPoint = Windows.Foundation.Point;
+
+#endregion
 
 namespace Microsoft.Msagl.GraphControl
 {
@@ -21,14 +24,14 @@ namespace Microsoft.Msagl.GraphControl
 
         public static Brush BrushFromMsaglColor( Microsoft.Msagl.Drawing.Color color )
         {
-            Color avalonColor = new Color { A = color.A, B = color.B, G = color.G, R = color.R };
-            return new SolidColorBrush( avalonColor );
+            Color brushColor = new Color { A = color.A, B = color.B, G = color.G, R = color.R };
+            return new SolidColorBrush( brushColor );
         }
 
         public static Brush BrushFromMsaglColor( byte colorA, byte colorR, byte colorG, byte colorB )
         {
-            Color avalonColor = new Color { A = colorA, R = colorR, G = colorG, B = colorB };
-            return new SolidColorBrush( avalonColor );
+            Color brushColor = new Color { A = colorA, R = colorR, G = colorG, B = colorB };
+            return new SolidColorBrush( brushColor );
         }
 
         internal static void PositionFrameworkElement( FrameworkElement frameworkElement, Point center, double scale )
@@ -42,8 +45,9 @@ namespace Microsoft.Msagl.GraphControl
                 return;
 
             MatrixTransform transform = new MatrixTransform();
-            transform.Matrix = new Matrix( scale, 0, 0, -scale, x - scale * frameworkElement.Width / 2,
-                    y + scale * frameworkElement.Height / 2 );
+            transform.Matrix = new Matrix( 
+                scale, 0, 0, -scale, x - scale * frameworkElement.Width / 2,
+                y + scale * frameworkElement.Height / 2 );
 
             frameworkElement.RenderTransform = transform;
         }

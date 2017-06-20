@@ -11,14 +11,16 @@ namespace Microsoft.Msagl.Drawing {
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes"), DataContract]
     public struct Color {
+
         byte a;
-/// <summary>
-/// constructor with alpha and red, green, bluee components
-/// </summary>
-/// <param name="a"></param>
-/// <param name="r"></param>
-/// <param name="g"></param>
-/// <param name="b"></param>
+
+        /// <summary>
+        /// constructor with alpha and red, green, bluee components
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="r"></param>
+        /// <param name="g"></param>
+        /// <param name="b"></param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "r"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "g"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "b"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "a")]
         public Color(byte a, byte r, byte g, byte b) {
             this.a = a;

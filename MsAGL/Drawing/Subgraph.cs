@@ -45,6 +45,7 @@ namespace Microsoft.Msagl.Drawing
         /// 
         /// </summary>
         public Subgraph ParentSubgraph { get; set; }
+        
         ///<summary>
         ///</summary>
         public Subgraph(string id) : base(id)
@@ -55,7 +56,6 @@ namespace Microsoft.Msagl.Drawing
         internal Set<Node> nodes = new Set<Node>();
         bool isUpdated;
         
-
 #if DEBUG 
         /// <summary>
         /// to string

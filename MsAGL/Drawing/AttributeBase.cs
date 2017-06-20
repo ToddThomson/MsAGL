@@ -15,7 +15,6 @@ namespace Microsoft.Msagl.Drawing
     [DataContract]
     public abstract class AttributeBase
     {
-
         static CultureInfo uSCultureInfo = new CultureInfo( "en-US" );
 
         Color color;
@@ -40,7 +39,6 @@ namespace Microsoft.Msagl.Drawing
             color = new Color( 0, 0, 0 ); //black
         }
 
-
         /// <summary>
         /// The current culture. Not tested with another culture.
         /// </summary>
@@ -51,7 +49,7 @@ namespace Microsoft.Msagl.Drawing
         }
 
         /// <summary>
-        /// A color of the object.
+        /// The color of the object.
         /// </summary>
         public Color Color
         {
@@ -82,8 +80,7 @@ namespace Microsoft.Msagl.Drawing
         }
 
         ///<summary>
-        ///Influences border width of clusters, border width of nodes
-        /// and edge thickness.
+        /// Influences border width of clusters, border width of nodes and edge thickness.
         ///</summary>
         public virtual double LineWidth
         {
@@ -97,7 +94,7 @@ namespace Microsoft.Msagl.Drawing
 
 
         ///<summary>
-        ///the URI of the entity, it seems not to be present in DOT
+        /// The URI of the entity, it seems not to be present in DOT
         ///</summary>
         public string Uri { get; set; }
 
@@ -113,13 +110,13 @@ namespace Microsoft.Msagl.Drawing
         public void AddStyle( Style style )
         {
             styles.Add( style );
+
             RaiseVisualsChangedEvent();
         }
 
         void RaiseVisualsChangedEvent()
         {
-            if ( VisualsChanged != null )
-                VisualsChanged( this, null );
+            VisualsChanged?.Invoke( this, null );
         }
 
         /// <summary>
@@ -129,6 +126,7 @@ namespace Microsoft.Msagl.Drawing
         public void RemoveStyle( Style style )
         {
             styles.Remove( style );
+
             RaiseVisualsChangedEvent();
         }
 
@@ -138,13 +136,13 @@ namespace Microsoft.Msagl.Drawing
         public void ClearStyles()
         {
             styles.Clear();
+
             RaiseVisualsChangedEvent();
         }
 
         internal void RaiseVisualsChangedEvent( object sender, EventArgs args )
         {
-            if ( VisualsChanged != null )
-                VisualsChanged( sender, args );
+            VisualsChanged?.Invoke( sender, args );
         }
 
 

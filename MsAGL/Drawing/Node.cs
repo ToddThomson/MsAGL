@@ -32,7 +32,6 @@ namespace Microsoft.Msagl.Drawing {
     [DataContract]
     public class Node : DrawingObject, ILabeledObject {
         
-        
         Label label;
         /// <summary>
         /// the label of the object

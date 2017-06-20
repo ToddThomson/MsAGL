@@ -11,60 +11,35 @@ namespace Microsoft.Msagl.Drawing {
     TypeConverterAttribute(typeof(ExpandableObjectConverter))]
 #endif
     [DataContract]
-    public sealed class EdgeAttr : AttributeBase {
-       
-        int separation=1;
-/// <summary>
-/// The separation of the edge in layers. The default is 1.
-/// </summary>
-        public int Separation {
-            get { return separation; }
-            set { separation = value; }
-        }
-  
-       
-        int weight = 1;
+    public sealed class EdgeAttr : AttributeBase
+    {
+        #region Properties
 
+        /// <summary>
+        /// The separation of the edge in layers. The default is 1.
+        /// </summary>
+        public int Separation { get; set; } = 1;
+  
         /// <summary>
         /// Greater weight keeps the edge short
         /// </summary>
-        public int Weight {
-            get { return weight; }
-            set { weight = value; }
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public EdgeAttr() {
-            Color = new Color(0, 0, 0);
-        }
-
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public EdgeAttr Clone() {
-            return MemberwiseClone() as EdgeAttr;
-        }
-
+        public int Weight { get; set; } = 1;
 
         ArrowStyle arrowheadAtSource = ArrowStyle.NonSpecified;
 
         /// <summary>
-        /// Arrow style; for the moment only the Normal and None are supported.
+        /// Arrow style; Normal and None are supported.
         /// </summary>
-        public ArrowStyle ArrowheadAtSource {
+        public ArrowStyle ArrowheadAtSource
+        {
             get { return arrowheadAtSource; }
-            set {
+            set
+            {
                 arrowheadAtSource = value;
-                RaiseVisualsChangedEvent(this, null);
+
+                RaiseVisualsChangedEvent( this, null );
             }
         }
-
 
         /// <summary>
         /// Arrow style; for the moment only a few are supported.
@@ -74,26 +49,72 @@ namespace Microsoft.Msagl.Drawing {
         /// <summary>
         /// Arrow style; for the moment only the Normal and None are supported.
         /// </summary>
-        public ArrowStyle ArrowheadAtTarget {
+        public ArrowStyle ArrowheadAtTarget
+        {
             get { return arrowheadAtTarget; }
-            set {
+            set
+            {
                 arrowheadAtTarget = value;
-                RaiseVisualsChangedEvent(this, null);
+                RaiseVisualsChangedEvent( this, null );
             }
         }
 
-        double arrowheadLength=10;
+        double arrowheadLength = 10;
+
         /// <summary>
         /// the length of an arrowhead of the edge
         /// </summary>
-        public double ArrowheadLength {
+        public double ArrowheadLength
+        {
             get { return arrowheadLength; }
-            set {
+            set
+            {
                 arrowheadLength = value;
-                RaiseVisualsChangedEvent(this, null);
+                RaiseVisualsChangedEvent( this, null );
             }
         }
-        
+
+        /// <summary>
+        /// Signals if an arrow should be drawn at the end.
+        /// </summary>
+        public bool ArrowAtTarget
+        {
+            get { return ArrowheadAtTarget != ArrowStyle.None; }
+        }
+
+        /// <summary>
+        /// is true if need to draw an arrow at the source
+        /// </summary>
+        public bool ArrowAtSource
+        {
+            get { return !(ArrowheadAtSource == ArrowStyle.NonSpecified || ArrowheadAtSource == ArrowStyle.None); }
+        }
+
+        /// <summary>
+        /// the position of the arrow head at the source. Applicable for MDS layouts
+        /// </summary>
+        public double Length { get; set; } = 1;
+
+        #endregion
+
+        #region Constructor(s)
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public EdgeAttr() {
+            Color = new Color(0, 0, 0);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public EdgeAttr Clone() {
+            return MemberwiseClone() as EdgeAttr;
+        }
 
         /// <summary>
         /// ToString with a parameter.
@@ -112,45 +133,13 @@ namespace Microsoft.Msagl.Drawing {
             if (arrowheadAtSource != ArrowStyle.NonSpecified)
                 ret = Utils.ConcatWithComma(ret, "arrowhead=" + arrowheadAtSource.ToString().ToLower());
 
-
             ret = Utils.ConcatWithComma(ret, Utils.ColorToString("color=", Color.ToString()),
                                 StylesToString(","),                              
                                 IdToString()
                                 );
 
-
             return ret;
-
         }
 
-       
-      
-   
-       
-        /// <summary>
-        /// Signals if an arrow should be drawn at the end.
-        /// </summary>
-        public bool ArrowAtTarget {
-            get { return ArrowheadAtTarget != ArrowStyle.None; }
-        }
-        
-      
-    /// <summary>
-    /// is true if need to draw an arrow at the source
-    /// </summary>
-        public bool ArrowAtSource {
-            get { return ! (ArrowheadAtSource == ArrowStyle.NonSpecified || ArrowheadAtSource ==ArrowStyle.None); }
-        }
-    /// <summary>
-    /// gets or sets the position of the arrow head at the source
-    /// </summary>
-        double length=1;
-        /// <summary>
-        /// applicable for MDS layouts
-        /// </summary>
-        public double Length {
-            get { return length; }
-            set { length = value; }
-        }              
     }
 }

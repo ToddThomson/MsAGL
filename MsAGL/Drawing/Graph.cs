@@ -31,7 +31,6 @@ namespace Microsoft.Msagl.Drawing
             set { rootSubgraph = value; }
         }
 
-
 #if TEST_MSAGL
         [IgnoreDataMember]
         Database dataBase;
@@ -45,18 +44,14 @@ namespace Microsoft.Msagl.Drawing
             set { dataBase = value; }
         }
 #endif
-        Label label;
 
         /// <summary>
         /// the label of the object
         /// </summary>
-        public Label Label
-        {
-            get { return label; }
-            set { label = value; }
-        }
-
+        public Label Label { get; set; }
+        
         ///<summary>
+        /// The nodes collection
         ///</summary>
         public IEnumerable<Node> Nodes
         {
@@ -236,6 +231,7 @@ namespace Microsoft.Msagl.Drawing
             Subgraph subgraph;
             if ( SubgraphMap.TryGetValue( nodeId, out subgraph ) )
                 return subgraph;
+
 #if SILVERLIGHT
             object obj;
             nodeMap.TryGetValue(nodeId, out obj);
@@ -480,10 +476,7 @@ namespace Microsoft.Msagl.Drawing
             }
         }
 
-
         Hashtable idToEdges = new Hashtable();
-
-
 
         [SuppressMessage( "Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields" )] string id;
 
@@ -497,6 +490,7 @@ namespace Microsoft.Msagl.Drawing
             this.id = id;
             Label = new Label();
             Label.Text = label;
+
             InitAttributes();
         }
 

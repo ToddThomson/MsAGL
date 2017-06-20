@@ -17,7 +17,7 @@ using GeometryNode = Microsoft.Msagl.Core.Layout.Node;
 
 namespace Microsoft.Msagl.Drawing {
     /// <summary>
-    /// Provides  graph nodes dragging functionality at the moment
+    /// Provides graph nodes dragging functionality at the moment
     /// </summary>
     public class LayoutEditor {
 
@@ -602,32 +602,34 @@ namespace Microsoft.Msagl.Drawing {
                 yield return edge;
         }
 
-        
+        void ViewerMouseDown( object sender, MsaglPointerEventArgs e )
+        {
+            if ( !viewer.LayoutEditingEnabled || viewer.Graph == null ) return;
 
-        void ViewerMouseDown(object sender, MsaglPointerEventArgs e) {
-            if (!viewer.LayoutEditingEnabled || viewer.Graph == null) return;
+            PressedMouseButtons = GetPressedButtons( e );
+            mouseDownGraphPoint = viewer.ScreenToSource( e );
+            MouseDownScreenPoint = new Point( e.X, e.Y );
 
-            PressedMouseButtons = GetPressedButtons(e);
-            mouseDownGraphPoint = viewer.ScreenToSource(e);
-            MouseDownScreenPoint = new Point(e.X, e.Y);
-            if (e.LeftButtonIsPressed) {
+            if ( e.LeftButtonIsPressed )
+            {
                 LeftMouseButtonWasPressed = true;
-                if (!InsertingEdge) {
-                    if (!(viewer.ObjectUnderPointer is IViewerEdge))
+                if ( !InsertingEdge )
+                {
+                    if ( !(viewer.ObjectUnderPointer is IViewerEdge) )
                         ActiveDraggedObject = viewer.ObjectUnderPointer;
-                    if (ActiveDraggedObject != null)
+                    if ( ActiveDraggedObject != null )
                         e.Handled = true;
-                    if (SelectedEdge != null)
-                        CheckIfDraggingPolylineVertex(e);
-                } else if (SourceOfInsertedEdge != null && SourcePort != null && DraggingStraightLine())
-                    viewer.StartDrawingRubberLine(sourcePort.Location);
-            } else if (e.RightButtonIsPressed)
-                if (SelectedEdge != null)
-                    ProcessRightClickOnSelectedEdge(e);
+                    if ( SelectedEdge != null )
+                        CheckIfDraggingPolylineVertex( e );
+                }
+                else if ( SourceOfInsertedEdge != null && SourcePort != null && DraggingStraightLine() )
+                    viewer.StartDrawingRubberLine( sourcePort.Location );
+            }
+            else if ( e.RightButtonIsPressed )
+                if ( SelectedEdge != null )
+                    ProcessRightClickOnSelectedEdge( e );
         }
 
-
-        
         void ViewerMouseMove(object sender, MsaglPointerEventArgs e) {
             if (viewer.LayoutEditingEnabled) {                 
                 if (e.LeftButtonIsPressed) {
@@ -640,7 +642,6 @@ namespace Microsoft.Msagl.Drawing {
             }            
         }
 
-        
         void SetDraggingFlag(MsaglPointerEventArgs e) {
             if (!Dragging && MouseDownPointAndMouseUpPointsAreFarEnoughOnScreen(e))
                 Dragging = true;

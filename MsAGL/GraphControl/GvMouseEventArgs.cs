@@ -27,7 +27,6 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
 using Microsoft.Msagl.Drawing;
 using Windows.Foundation;
 using Windows.UI.Input;
@@ -54,7 +53,6 @@ namespace Microsoft.Msagl.GraphControl
                 return pointerInfo.Properties.IsLeftButtonPressed;
             }
         }
-
 
         public override bool MiddleButtonIsPressed
         {

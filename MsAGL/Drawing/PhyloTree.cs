@@ -7,7 +7,7 @@ namespace Microsoft.Msagl.Drawing {
     /// represents a phylogenetic tree: a tree with edges of specific length
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Phylogenetic")]
-    public class PhyloTree:Graph {
+    public class PhyloTree : Graph {
         /// <summary>
         /// creates the geometry graph corresponding to the tree
         /// </summary>

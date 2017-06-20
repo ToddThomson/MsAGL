@@ -1,3 +1,5 @@
+#region Namespaces
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -5,30 +7,35 @@ using Microsoft.Msagl.Core.Geometry;
 using Microsoft.Msagl.Core.Layout;
 using System.Runtime.Serialization;
 
+#endregion
+
 namespace Microsoft.Msagl.Drawing {
     /// <summary>
     /// Base class for graph objects  
     /// </summary>
     [DataContract]
     public abstract class DrawingObject {
+
+        #region Events
+
         /// <summary>
-        /// 
+        /// Visiblity changed event.
         /// </summary>
         public event Action<DrawingObject> IsVisibleChanged;
+        
+        #endregion
 
-        object userData;
+        #region Properties
+
         /// <summary>
-        /// This field can be used as a backpointer to the user data associated with the object
+        /// Property to be used as a backpointer to the user data associated with the object
         /// </summary>
-        public object UserData {
-            get { return userData; }
-            set { userData = value; }
-        }
+        public object UserData { get; set; }
 
         /// <summary>
         /// gets the bounding box of the object
         /// </summary>
-        abstract public Rectangle BoundingBox { get;}
+        abstract public Rectangle BoundingBox { get; }
         
         /// <summary>
         /// gets the geometry object corresponding to the drawing object
@@ -52,5 +59,7 @@ namespace Microsoft.Msagl.Drawing {
                     IsVisibleChanged( this );
             }
         }
+
+        #endregion
     }
 }

@@ -41,16 +41,14 @@ namespace Microsoft.Msagl.Drawing {
             this.Length = lengthP;
         }
 
-
         private bool negative;
- /// <summary>
- /// 
- /// </summary>
+         /// <summary>
+         /// 
+         /// </summary>
         public bool Negative {
             get { return negative; }
             set { negative = value; }
         }
-
     }
 }
 
