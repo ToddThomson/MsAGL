@@ -1,4 +1,4 @@
-#region Copyright Notice
+﻿#region Copyright Notice
 
 // Copyright (c) by Achilles Software, All rights reserved.
 //
@@ -40,37 +40,58 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #region Namespaces
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 #endregion
 
 namespace Microsoft.Msagl.Drawing
 {
     /// <summary>
-    /// an interface for an edge drawn by viewer which is enabled for editing
+    /// Arguments for the event of changing the object under the pointer.
     /// </summary>
-    public interface IViewerEdge : IViewerObject
+    public class ObjectUnderPointerChangedEventArgs : EventArgs
     {
-        /// <summary>
-        /// the corresponding drawing edge
-        /// </summary>
-        Edge Edge { get; }
-        
-        /// <summary>
-        /// the edge source
-        /// </summary>
-        IViewerNode Source { get; }
- 
-        /// <summary>
-        /// the edge target
-        /// </summary>
-        IViewerNode Target { get; }
+        #region Constructor(s)
 
         /// <summary>
-        ///the radius of circles drawin around polyline corners 
+        /// The class constructor.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Polyline" )]
-        double RadiusOfPolylineCorner { get; set; }
+        public ObjectUnderPointerChangedEventArgs() { }
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="lastObject"></param>
+        /// <param name="newObject"></param>
+        public ObjectUnderPointerChangedEventArgs( IViewerObject lastObject, IViewerObject newObject )
+        {
+            LastObject = lastObject;
+            NewObject = newObject;
+        }
+
+        #endregion
+
+        #region Public Properties
+
+        IViewerObject lastObject;
+        /// <summary>
+        /// The last object under the pointer.
+        /// </summary>
+        public IViewerObject LastObject
+        {
+            get { return lastObject; }
+            set { lastObject = value; }
+        }
+
+        IViewerObject newObject;
+        /// <summary>
+        /// The new object under the pointer.
+        /// </summary>
+        public IViewerObject NewObject
+        {
+            get { return newObject; }
+            set { newObject = value; }
+        }
+            
+        #endregion
     }
 }

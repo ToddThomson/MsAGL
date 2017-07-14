@@ -6,42 +6,48 @@ using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Prototype.LayoutEditing;
 using System.Linq;
 
-namespace Microsoft.Msagl.Drawing {
+namespace Microsoft.Msagl.Drawing
+{
     /// <summary>
     /// the interface for undo objects
     /// </summary>
-    public class UndoRedoAction {
-        Set<IViewerObject> affectedObjects=new Set<IViewerObject>();
+    public class UndoRedoAction
+    {
+        Set<IViewerObject> affectedObjects = new Set<IViewerObject>();
 
         /// <summary>
         /// the set of the objects that the viewer has to invalidate
         /// </summary>
-        internal IEnumerable<IViewerObject> AffectedObjects {
-            get { return affectedObjects; } 
-        }
-
-        internal bool ContainsAffectedObject(IViewerObject o)
+        internal IEnumerable<IViewerObject> AffectedObjects
         {
-            return affectedObjects.Contains(o);
+            get { return affectedObjects; }
         }
 
-        internal void AddAffectedObject(IViewerObject o) {
-            lock(affectedObjects)
-            affectedObjects.Insert(o);
+        internal bool ContainsAffectedObject( IViewerObject o )
+        {
+            return affectedObjects.Contains( o );
         }
 
-        internal void RemoveAffectedObject(IViewerObject o)
-        {           
-            lock(affectedObjects)
-            affectedObjects.Remove(o);
+        internal void AddAffectedObject( IViewerObject o )
+        {
+            lock ( affectedObjects )
+                affectedObjects.Insert( o );
         }
 
-        internal void ClearAffectedObjects() {
-            lock(affectedObjects)
-            affectedObjects.Clear();
+        internal void RemoveAffectedObject( IViewerObject o )
+        {
+            lock ( affectedObjects )
+                affectedObjects.Remove( o );
         }
 
-        internal UndoRedoAction(GeometryGraph graphPar) {
+        internal void ClearAffectedObjects()
+        {
+            lock ( affectedObjects )
+                affectedObjects.Clear();
+        }
+
+        internal UndoRedoAction( GeometryGraph graphPar )
+        {
             this.Graph = graphPar;
             this.graphBoundingBoxBefore = this.Graph.BoundingBox;
         }
@@ -51,7 +57,8 @@ namespace Microsoft.Msagl.Drawing {
         /// <summary>
         /// the graph being edited
         /// </summary>
-        public GeometryGraph Graph {
+        public GeometryGraph Graph
+        {
             get { return graph; }
             set { graph = value; }
         }
@@ -62,23 +69,26 @@ namespace Microsoft.Msagl.Drawing {
         /// <summary>
         /// Undoes the action
         /// </summary>
-        public virtual void Undo() {
-            if (GraphBoundingBoxHasChanged)
+        public virtual void Undo()
+        {
+            if ( GraphBoundingBoxHasChanged )
                 this.Graph.BoundingBox = GraphBoundingBoxBefore;
         }
 
         /// <summary>
         /// Redoes the action
         /// </summary>
-        public virtual void Redo() {
-            if (GraphBoundingBoxHasChanged)
+        public virtual void Redo()
+        {
+            if ( GraphBoundingBoxHasChanged )
                 Graph.BoundingBox = GraphBoundingBoxAfter;
         }
 
         /// <summary>
         /// The pointer to the next undo object
         /// </summary>
-        public UndoRedoAction Next {
+        public UndoRedoAction Next
+        {
             get { return next; }
             set { next = value; }
         }
@@ -86,7 +96,8 @@ namespace Microsoft.Msagl.Drawing {
         /// <summary>
         /// The pointer to the previous undo object
         /// </summary>
-        public UndoRedoAction Previous {
+        public UndoRedoAction Previous
+        {
             get { return prev; }
             set { prev = value; }
         }
@@ -96,29 +107,34 @@ namespace Microsoft.Msagl.Drawing {
         protected Dictionary<GeometryObject, RestoreData> restoreDataDictionary =
             new Dictionary<GeometryObject, RestoreData>();
 
-        internal void AddRestoreData(GeometryObject msaglObject, RestoreData restoreData) {
-            lock (restoreData)
-                restoreDataDictionary[msaglObject] = restoreData;
+        internal void AddRestoreData( GeometryObject msaglObject, RestoreData restoreData )
+        {
+            lock ( restoreData )
+                restoreDataDictionary[ msaglObject ] = restoreData;
 
         }
 
-        internal static GeometryGraph GetParentGraph(GeometryObject geomObj) {
-            do {
+        internal static GeometryGraph GetParentGraph( GeometryObject geomObj )
+        {
+            do
+            {
                 GeometryGraph graph = geomObj.GeometryParent as GeometryGraph;
-                if (graph != null)
+                if ( graph != null )
                     return graph;
                 geomObj = geomObj.GeometryParent;
-            } while (true);
+            } while ( true );
         }
 
-        internal RestoreData GetRestoreData(GeometryObject msaglObject) {
-            return restoreDataDictionary[msaglObject];
+        internal RestoreData GetRestoreData( GeometryObject msaglObject )
+        {
+            return restoreDataDictionary[ msaglObject ];
         }
 
         /// <summary>
         /// enumerates over all edited objects
         /// </summary>
-        public IEnumerable<GeometryObject> EditedObjects {
+        public IEnumerable<GeometryObject> EditedObjects
+        {
             get { return restoreDataDictionary.Keys; }
         }
 
@@ -128,7 +144,8 @@ namespace Microsoft.Msagl.Drawing {
         /// <summary>
         /// the graph bounding box before the change
         /// </summary>
-        public Rectangle GraphBoundingBoxBefore {
+        public Rectangle GraphBoundingBoxBefore
+        {
             get { return graphBoundingBoxBefore; }
             set { graphBoundingBoxBefore = value; }
         }
@@ -138,7 +155,8 @@ namespace Microsoft.Msagl.Drawing {
         /// <summary>
         /// the graph bounding box after the change
         /// </summary>
-        public Rectangle GraphBoundingBoxAfter {
+        public Rectangle GraphBoundingBoxAfter
+        {
             get { return graphBoundingBoxAfter; }
             set { graphBoundingBoxAfter = value; }
         }
@@ -146,7 +164,8 @@ namespace Microsoft.Msagl.Drawing {
         /// <summary>
         /// returns true if the was a change in the bounding box of the graph
         /// </summary>
-        public bool GraphBoundingBoxHasChanged {
+        public bool GraphBoundingBoxHasChanged
+        {
             get { return graphBoundingBoxAfter != graphBoundingBoxBefore; }
         }
     }

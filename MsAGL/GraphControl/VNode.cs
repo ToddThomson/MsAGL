@@ -1,3 +1,44 @@
+#region Copyright Notice
+
+// Copyright (c) by Achilles Software, All rights reserved.
+//
+// Licensed under the MIT License. See License.txt in the project root for license information.
+//
+// Send questions regarding this copyright notice to: mailto:todd.thomson@achilles-software.com
+
+/*
+Microsoft Automatic Graph Layout,MSAGL 
+
+Copyright (c) Microsoft Corporation
+
+All rights reserved. 
+
+MIT License 
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+""Software""), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#endregion
+
+#region Namespaces
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,11 +62,12 @@ using Windows.UI.Xaml.Input;
 using Windows.UI;
 using Windows.Foundation;
 
-namespace Microsoft.Msagl.GraphControl {
+#endregion
+
+namespace Msagl.Uwp.UI.GraphControl {
 
     public class VNode : IViewerNode, IInvalidatable
     {
-
         #region Fields
 
         internal Path BoundaryPath;
@@ -47,14 +89,19 @@ namespace Microsoft.Msagl.GraphControl {
             get
             {
                 var geomNode = Node.GeometryNode;
+
                 if ( geomNode == null )
                     return 0;
+
                 int ret = 0;
+
                 do
                 {
                     if ( geomNode.ClusterParents == null )
                         return ret;
+
                     geomNode = geomNode.ClusterParents.FirstOrDefault();
+
                     if ( geomNode != null )
                         ret++;
                     else
@@ -87,18 +134,21 @@ namespace Microsoft.Msagl.GraphControl {
             PathStrokeThicknessFunc = pathStrokeThicknessFunc;
             Node = node;
             FrameworkElementOfNodeForLabel = frameworkElementOfNodeForLabelOfLabel;
-
             _funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;
 
             CreateNodeBoundaryPath();
+
             if ( FrameworkElementOfNodeForLabel != null )
             {
                 FrameworkElementOfNodeForLabel.Tag = this; //get a backpointer to the VNode 
                 Common.PositionFrameworkElement( FrameworkElementOfNodeForLabel, node.GeometryNode.Center, 1 );
                 // FIXME: FrameworkElementOfNodeForLabel.ZIndex = ( BoundaryPath ) + 1;
             }
+
             SetupSubgraphDrawing();
+
             Node.Attr.VisualsChanged += ( a, b ) => Invalidate();
+
             Node.IsVisibleChanged += obj =>
             {
                 foreach ( var frameworkElement in FrameworkElements )
@@ -250,6 +300,7 @@ namespace Microsoft.Msagl.GraphControl {
             double offsetFromBoundaryPath = PathStrokeThickness / 2 + 0.5;
             var collapseButtonCenter = box.LeftTop + new Point( collapseBorderSize / 2 + offsetFromBoundaryPath,
                 -collapseBorderSize / 2 - offsetFromBoundaryPath );
+
             return collapseButtonCenter;
         }
 
@@ -272,10 +323,10 @@ namespace Microsoft.Msagl.GraphControl {
         Geometry CreateCollapseSymbolPath( Point center, double width )
         {
             var pathGeometry = new PathGeometry();
-            var pathFigure = new PathFigure { StartPoint = Common.WpfPoint( center + new Point( -width, width ) ) };
+            var pathFigure = new PathFigure { StartPoint = Common.UwpPoint( center + new Point( -width, width ) ) };
 
-            pathFigure.Segments.Add( new Windows.UI.Xaml.Media.LineSegment { Point = Common.WpfPoint( center ) } );
-            pathFigure.Segments.Add( new Windows.UI.Xaml.Media.LineSegment { Point = Common.WpfPoint( center + new Point( width, width ) ) } );
+            pathFigure.Segments.Add( new Windows.UI.Xaml.Media.LineSegment { Point = Common.UwpPoint( center ) } );
+            pathFigure.Segments.Add( new Windows.UI.Xaml.Media.LineSegment { Point = Common.UwpPoint( center + new Point( width, width ) ) } );
 
             pathGeometry.Figures.Add( pathFigure );
 
@@ -289,12 +340,12 @@ namespace Microsoft.Msagl.GraphControl {
                 // FrameworkElementOfNode.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                 var center = Node.GeometryNode.Center;
                 var margin = 2 * Node.Attr.LabelMargin;
-                var bc = NodeBoundaryCurves.GetNodeBoundaryCurve( Node,
-                    FrameworkElementOfNodeForLabel
-                        .Width + margin,
-                    FrameworkElementOfNodeForLabel
-                        .Height + margin );
+                var bc = NodeBoundaryCurves.GetNodeBoundaryCurve( 
+                    Node,
+                    FrameworkElementOfNodeForLabel.Width + margin,
+                    FrameworkElementOfNodeForLabel.Height + margin );
                 bc.Translate( center );
+                
                 //                if (LgNodeInfo != null) {
                 //                    //LgNodeInfo.OriginalCurveOfGeomNode = bc;
                 //                    Node.GeometryNode.BoundaryCurve =
@@ -303,9 +354,12 @@ namespace Microsoft.Msagl.GraphControl {
                 //                            .Clone();
                 //                }
             }
+
             BoundaryPath = new Path { Data = CreatePathFromNodeBoundary(), Tag = this };
             Canvas.SetZIndex( BoundaryPath, ZIndex );
+
             SetFillAndStroke();
+
             if ( Node.Label != null )
             {
                 ToolTip toolTip = new ToolTip();
@@ -332,18 +386,19 @@ namespace Microsoft.Msagl.GraphControl {
         void SetFillAndStroke()
         {
             byte trasparency = GetTransparency( Node.Attr.Color.A );
-            BoundaryPath.Stroke =
-                Common.BrushFromMsaglColor( new Drawing.Color( trasparency, Node.Attr.Color.R, Node.Attr.Color.G,
-                    Node.Attr.Color.B ) );
+            BoundaryPath.Stroke = Common.BrushFromMsaglColor( 
+                new Microsoft.Msagl.Drawing.Color( trasparency, Node.Attr.Color.R, Node.Attr.Color.G, Node.Attr.Color.B ) );
             SetBoundaryFill();
+
             BoundaryPath.StrokeThickness = PathStrokeThickness;
 
             var textBlock = FrameworkElementOfNodeForLabel as TextBlock;
+
             if ( textBlock != null )
             {
                 var col = Node.Label.FontColor;
-                textBlock.Foreground =
-                    Common.BrushFromMsaglColor( new Drawing.Color( GetTransparency( col.A ), col.R, col.G, col.B ) );
+                textBlock.Foreground = Common.BrushFromMsaglColor( 
+                    new Microsoft.Msagl.Drawing.Color( GetTransparency( col.A ), col.R, col.G, col.B ) );
             }
         }
 
@@ -357,23 +412,26 @@ namespace Microsoft.Msagl.GraphControl {
             var box = Node.BoundingBox;
             double w = box.Width;
             double h = box.Height;
-            var pathGeometry = new PathGeometry();
+            var groupGeometry = new GeometryGroup();
+
             var r = new Rect( box.Left, box.Bottom, w, h );
 
-            // FIXME: TJT
+            groupGeometry.Children.Add( new EllipseGeometry()
+            {
+                Center = new Windows.Foundation.Point( w, h ),
+                RadiusX = r.Left,
+                RadiusY = r.Bottom
+            } );
 
-            //pathGeometry.Figures.Add( new EllipseGeometry()
-            //{
-            //    Center = new Windows.Foundation.Point( w, h ),
-            //    RadiusX = r.Left,
-            //    RadiusY = r.Bottom
-            //} );
-                
-            //var inflation = Math.Min(5.0, Math.Min(w/3, h/3));
-            //r.Inflate(-inflation, -inflation);
-            //pathGeometry.AddGeometry(new EllipseGeometry(r));
+            var inflation = Math.Min( 5.0, Math.Min( w / 3, h / 3 ) );
+            groupGeometry.Children.Add( new EllipseGeometry()
+            {
+                Center = new Windows.Foundation.Point( w, h ),
+                RadiusX = r.Left - inflation,
+                RadiusY = r.Bottom - inflation
+            } );
 
-            return pathGeometry;
+            return groupGeometry;
         }
 
         Geometry CreatePathFromNodeBoundary()
@@ -411,7 +469,7 @@ namespace Microsoft.Msagl.GraphControl {
             {
                 IsClosed = true,
                 IsFilled = true,
-                StartPoint = Common.WpfPoint( iCurve.Start )
+                StartPoint = Common.UwpPoint( iCurve.Start )
             };
 
             var curve = iCurve as Curve;
@@ -431,7 +489,7 @@ namespace Microsoft.Msagl.GraphControl {
                     {
                         return new EllipseGeometry
                         {
-                            Center = Common.WpfPoint( ellipse.Center ),
+                            Center = Common.UwpPoint( ellipse.Center ),
                             RadiusX = ellipse.AxisA.Length,
                             RadiusY = ellipse.AxisB.Length
                         };
@@ -442,7 +500,7 @@ namespace Microsoft.Msagl.GraphControl {
                         var p = poly.StartPoint.Next;
                         do
                         {
-                            pathFigure.Segments.Add( new Windows.UI.Xaml.Media.LineSegment { Point = Common.WpfPoint( p.Point ) } );
+                            pathFigure.Segments.Add( new Windows.UI.Xaml.Media.LineSegment { Point = Common.UwpPoint( p.Point ) } );
 
                             p = p.NextOnPolyline;
                         } while ( p != poly.StartPoint );
@@ -462,7 +520,7 @@ namespace Microsoft.Msagl.GraphControl {
                 var ls = seg as LineSegment;
 
                 if ( ls != null )
-                    pathFigure.Segments.Add( new Windows.UI.Xaml.Media.LineSegment { Point = Common.WpfPoint( ls.End ) } );
+                    pathFigure.Segments.Add( new Windows.UI.Xaml.Media.LineSegment { Point = Common.UwpPoint( ls.End ) } );
                 else
                 {
                     var ellipse = seg as Ellipse;
@@ -471,7 +529,7 @@ namespace Microsoft.Msagl.GraphControl {
                     {
                         pathFigure.Segments.Add( new ArcSegment
                         {
-                            Point = Common.WpfPoint( ellipse.End ),
+                            Point = Common.UwpPoint( ellipse.End ),
                             Size = new Size( ellipse.AxisA.Length, ellipse.AxisB.Length ),
                             RotationAngle = Point.Angle( new Point( 1, 0 ), ellipse.AxisA ),
                             //ellipse.ParEnd - ellipse.ParEnd >= Math.PI,
@@ -486,7 +544,7 @@ namespace Microsoft.Msagl.GraphControl {
         {
             return new EllipseGeometry
             {
-                Center = Common.WpfPoint( Node.BoundingBox.Center ),
+                Center = Common.UwpPoint( Node.BoundingBox.Center ),
                 RadiusX = Node.BoundingBox.Width / 2,
                 RadiusY = Node.BoundingBox.Height / 2
             };

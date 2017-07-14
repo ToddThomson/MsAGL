@@ -81,8 +81,6 @@ namespace Microsoft.Msagl.Drawing {
         }
     }
 
-
-
     /// <summary>
     /// Styles enumeration
     /// </summary>

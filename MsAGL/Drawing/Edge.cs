@@ -1,3 +1,42 @@
+#region Copyright Notice
+
+// Copyright (c) by Achilles Software, All rights reserved.
+//
+// Licensed under the MIT License. See License.txt in the project root for license information.
+//
+// Send questions regarding this copyright notice to: mailto:todd.thomson@achilles-software.com
+
+/*
+Microsoft Automatic Graph Layout,MSAGL 
+
+Copyright (c) Microsoft Corporation
+
+All rights reserved. 
+
+MIT License 
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+""Software""), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#endregion
+
 using System;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
@@ -51,7 +90,7 @@ namespace Microsoft.Msagl.Drawing
             set { GeometryEdge = (Core.Layout.Edge)value; }
         }
         /// <summary>
-        /// gets and sets the edge curve
+        /// Gets or sets the edge curve.
         /// </summary>
         public ICurve EdgeCurve
         {
@@ -59,8 +98,10 @@ namespace Microsoft.Msagl.Drawing
             {
                 if ( this.GeometryEdge == null )
                     return null;
+
                 return this.GeometryEdge.Curve;
             }
+
             set { this.GeometryEdge.Curve = value; }
         }
 
@@ -158,6 +199,7 @@ namespace Microsoft.Msagl.Drawing
             {
                 if ( this.GeometryEdge == null || this.GeometryEdge.EdgeGeometry.TargetArrowhead == null )
                     return new P2();
+
                 return this.GeometryEdge.EdgeGeometry.TargetArrowhead.TipPosition;
             }
             set
@@ -168,6 +210,7 @@ namespace Microsoft.Msagl.Drawing
                     {
                         this.GeometryEdge.EdgeGeometry.TargetArrowhead = new Arrowhead();
                     }
+
                     this.GeometryEdge.EdgeGeometry.TargetArrowhead.TipPosition = value;
                 }
             }
@@ -181,6 +224,7 @@ namespace Microsoft.Msagl.Drawing
             {
                 if ( this.GeometryEdge == null || this.GeometryEdge.EdgeGeometry.SourceArrowhead == null )
                     return new P2();
+
                 return this.GeometryEdge.EdgeGeometry.SourceArrowhead.TipPosition;
             }
             set
@@ -191,6 +235,7 @@ namespace Microsoft.Msagl.Drawing
                     {
                         this.GeometryEdge.EdgeGeometry.SourceArrowhead = new Arrowhead();
                     }
+
                     this.GeometryEdge.EdgeGeometry.SourceArrowhead.TipPosition = value;
                 }
             }

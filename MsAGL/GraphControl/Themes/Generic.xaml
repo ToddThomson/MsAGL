@@ -1,0 +1,43 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Msagl.Uwp.UI.GraphControl" >
+
+    <Style TargetType="local:GraphGrid" >
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:GraphGrid">
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:GraphViewer" >
+        <Setter Property="IsTabStop" Value="True"/>
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="MinWidth" Value="100"/>
+        <Setter Property="MinHeight" Value="100"/>
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:GraphViewer">
+                    <ScrollViewer x:Name="PART_GraphScrollViewer" VerticalScrollMode="Enabled" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                        <Grid x:Name="PART_GraphContainer">
+                            <Canvas x:Name="PART_GraphCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Border x:Name="PART_GraphBorder" Style="{TemplateBinding GraphBorderStyle}" Canvas.ZIndex="-1" />
+                            </Canvas>
+                            <Canvas x:Name="PART_SelectionLayer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        </Grid>
+                    </ScrollViewer>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

@@ -1,4 +1,5 @@
-namespace Microsoft.Msagl.Drawing{
+namespace Microsoft.Msagl.Drawing
+{
     /// <summary>
     /// The usage of this delegate is 
     /// a) when dragging is false
@@ -11,5 +12,5 @@ namespace Microsoft.Msagl.Drawing{
     /// <param name="mouseButtons"></param>
     /// <param name="dragging"></param>
     /// <returns></returns>
-    public delegate bool MouseAndKeysAnalyzer(ModifierKeys modifierKeys, MouseButtons mouseButtons, bool dragging);
+    public delegate bool MouseAndKeysAnalyzer( ModifierKeys modifierKeys, MouseButtons mouseButtons, bool dragging );
 }

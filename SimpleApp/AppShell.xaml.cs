@@ -34,8 +34,8 @@ namespace SimpleApp
                 new NavMenuItem()
                 {
                     Symbol = Symbol.Edit,
-                    Label = "CommandBar Page",
-                    DestPage = typeof(CommandBarPage)
+                    Label = "Graph Viewer",
+                    DestPage = typeof(GraphViewerPage)
                 }
             });
 

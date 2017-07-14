@@ -26,13 +26,14 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
 ﻿using System;
 using Microsoft.Msagl.Drawing;
 using Windows.UI.Xaml;
 using Windows.Foundation;
 using System.Numerics;
 
-namespace Microsoft.Msagl.GraphControl
+namespace Msagl.Uwp.UI.GraphControl
 {
     internal class ClickCounter
     {
@@ -46,6 +47,8 @@ namespace Microsoft.Msagl.GraphControl
 
             clickTimer.Tick += TimeTick;
             clickTimer.Interval = TimeSpan.FromMilliseconds( 500 );
+
+            IsRunning = false;
         }
 
         internal int DownCount { get; private set; }
@@ -53,7 +56,7 @@ namespace Microsoft.Msagl.GraphControl
         readonly DispatcherTimer clickTimer = new DispatcherTimer();
         internal Point LastDownClickPosition;
 
-        internal void AddPointerPressed( object objectUnderMouseCursor )
+        internal void AddPointerPressed( object objectUnderPointer )
         {
             if ( !IsRunning )
             {
@@ -61,11 +64,10 @@ namespace Microsoft.Msagl.GraphControl
                 UpCount = 0;
                 clickTimer.Start();
                 IsRunning = true;
-
             }
 
             LastDownClickPosition = this.mousePosition();
-            ClickedObject = objectUnderMouseCursor;
+            ClickedObject = objectUnderPointer;
 
             DownCount++;
         }
@@ -76,6 +78,7 @@ namespace Microsoft.Msagl.GraphControl
 
             if ( IsRunning )
             {
+                //var distancePointerMoved = Point.
                 // FIXME:
                 //if ( (mousePosition() - LastDownClickPosition).Length > minDistanceForClickDownAndUp )
                 //{

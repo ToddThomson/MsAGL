@@ -101,13 +101,10 @@
     <Compile Include="Controls\NavMenuListView.cs" />
     <Compile Include="Controls\PageHeader.xaml.cs" />
     <Compile Include="Helpers\SystemInformationHelpers.cs" />
-    <Compile Include="MainPage.xaml.cs">
-      <DependentUpon>MainPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="NavMenuItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Triggers\IsTenFootTrigger.cs" />
-    <Compile Include="Views\CommandBarPage.xaml.cs" />
+    <Compile Include="Views\GraphViewerPage.xaml.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -138,10 +135,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="MainPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Styles\Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -150,7 +143,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\CommandBarPage.xaml">
+    <Page Include="Views\GraphViewerPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -168,6 +161,10 @@
     <ProjectReference Include="..\MsAGL\GraphControl\GraphControl.csproj">
       <Project>{24b80892-9828-4139-8d85-34b9733329ab}</Project>
       <Name>GraphControl</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MsAGL\MsAGL\MsAGL.csproj">
+      <Project>{7078dad3-b1c8-4e99-9c83-dff6647c7cc9}</Project>
+      <Name>MsAGL</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

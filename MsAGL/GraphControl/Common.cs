@@ -8,11 +8,11 @@ using UwpPoint = Windows.Foundation.Point;
 
 #endregion
 
-namespace Microsoft.Msagl.GraphControl
+namespace Msagl.Uwp.UI.GraphControl
 {
     internal class Common
     {
-        internal static UwpPoint WpfPoint( Point p )
+        internal static UwpPoint UwpPoint( Point p )
         {
             return new UwpPoint( p.X, p.Y );
         }
@@ -44,10 +44,12 @@ namespace Microsoft.Msagl.GraphControl
             if ( frameworkElement == null )
                 return;
 
-            MatrixTransform transform = new MatrixTransform();
-            transform.Matrix = new Matrix( 
+            MatrixTransform transform = new MatrixTransform()
+            {
+                Matrix = new Matrix(
                 scale, 0, 0, -scale, x - scale * frameworkElement.Width / 2,
-                y + scale * frameworkElement.Height / 2 );
+                y + scale * frameworkElement.Height / 2 )
+            };
 
             frameworkElement.RenderTransform = transform;
         }

@@ -1,3 +1,5 @@
+#region Copyright Notices
+
 /*
 Microsoft Automatic Graph Layout,MSAGL 
 
@@ -27,13 +29,20 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#endregion
+
+#region Namespaces
+
 using Microsoft.Msagl.Drawing;
 using Windows.Foundation;
+using Windows.System;
 using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
 
-namespace Microsoft.Msagl.GraphControl
+#endregion
+
+namespace Msagl.Uwp.UI.GraphControl
 {
     internal class GraphViewerPointerEventArgs : MsaglPointerEventArgs
     {
@@ -46,7 +55,7 @@ namespace Microsoft.Msagl.GraphControl
             pointerInfo = e.GetCurrentPoint( (UIElement)graphScrollerP.GraphCanvas.Parent );
         }
 
-        public override bool LeftButtonIsPressed
+        public override bool IsLeftButtonPressed
         {
             get
             {
@@ -54,7 +63,7 @@ namespace Microsoft.Msagl.GraphControl
             }
         }
 
-        public override bool MiddleButtonIsPressed
+        public override bool IsMiddleButtonPressed
         {
             get
             {
@@ -62,7 +71,7 @@ namespace Microsoft.Msagl.GraphControl
             }
         }
 
-        public override bool RightButtonIsPressed
+        public override bool IsRightButtonPressed
         {
             get
             {
@@ -70,6 +79,10 @@ namespace Microsoft.Msagl.GraphControl
             }
         }
 
+        public override VirtualKeyModifiers KeyModifiers
+        {
+            get { return pointerEventArgs.KeyModifiers; }
+        }
 
         public override bool Handled
         {
@@ -94,6 +107,7 @@ namespace Microsoft.Msagl.GraphControl
         {
             get
             {
+                // FIXME: TJT - eliminate this
                 return 0;// pointerEventArgs != null ? pointerEventArgs.Pointer.Clicks : 0;
             }
         }

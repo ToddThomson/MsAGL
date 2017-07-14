@@ -7,7 +7,7 @@
     <ProjectGuid>{24B80892-9828-4139-8D85-34B9733329AB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Msagl.GraphControl</RootNamespace>
+    <RootNamespace>Msagl.Uwp.UI.GraphControl</RootNamespace>
     <AssemblyName>Msagl.GraphControl</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
@@ -108,6 +108,9 @@
   <ItemGroup>
     <Compile Include="ClickCounter.cs" />
     <Compile Include="Common.cs" />
+    <Compile Include="GraphGrid.cs" />
+    <Compile Include="DraggingCanvas.cs" />
+    <Compile Include="EditingMode.cs" />
     <Compile Include="GraphViewer.cs" />
     <Compile Include="GvMouseEventArgs.cs" />
     <Compile Include="IInvalidatable.cs" />
@@ -116,11 +119,13 @@
     <Compile Include="VEdge.cs" />
     <Compile Include="VLabel.cs" />
     <Compile Include="VNode.cs" />
+    <Compile Include="ZoomLevel.cs" />
+    <Compile Include="ZoomMode.cs" />
     <EmbeddedResource Include="Properties\GraphControl.rd.xml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>5.2.3</Version>
+      <Version>5.3.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +137,12 @@
       <Project>{7078dad3-b1c8-4e99-9c83-dff6647c7cc9}</Project>
       <Name>MsAGL</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
