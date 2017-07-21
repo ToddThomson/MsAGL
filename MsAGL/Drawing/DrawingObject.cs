@@ -39,22 +39,22 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #region Namespaces
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Msagl.Core.Geometry;
 using Microsoft.Msagl.Core.Layout;
+using System;
 using System.Runtime.Serialization;
+using Windows.UI.Xaml.Controls;
 
 #endregion
 
-namespace Microsoft.Msagl.Drawing {
+namespace Microsoft.Msagl.Drawing
+{
     /// <summary>
-    /// Base class for graph objects  
+    /// Base class for graph drawing objects.
     /// </summary>
     [DataContract]
-    public abstract class DrawingObject {
-
+    public abstract class DrawingObject : Control
+    {
         #region Events
 
         /// <summary>
@@ -67,28 +67,29 @@ namespace Microsoft.Msagl.Drawing {
         #region Properties
 
         /// <summary>
-        /// Property to be used as a backpointer to the user data associated with the object
+        /// Property to be used as a backpointer to the user data associated with the object.
         /// </summary>
         public object UserData { get; set; }
 
         /// <summary>
-        /// gets the bounding box of the object
+        /// Gets the bounding box of the object.
         /// </summary>
         abstract public Rectangle BoundingBox { get; }
         
         /// <summary>
-        /// gets the geometry object corresponding to the drawing object
+        /// Gets or sets the geometry object corresponding to the drawing object.
         /// </summary>
         public abstract GeometryObject GeometryObject { get; set; }
 
         bool isVisible = true;
 
         /// <summary>
-        /// gets or sets the visibility of an object
+        /// Gets or sets the visibility of an object
         /// </summary>
         virtual public bool IsVisible
         {
             get { return isVisible; }
+
             set
             {
                 var was = isVisible;

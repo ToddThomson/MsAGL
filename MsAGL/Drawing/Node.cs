@@ -44,13 +44,14 @@ using Microsoft.Msagl.Core.DataStructures;
 using Microsoft.Msagl.Core.Geometry;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
-using Microsoft.Msagl.Drawing;
 using Rectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 using System.Collections.Generic;
 using Edge = Microsoft.Msagl.Core.Layout.Edge;
 using ILabeledObject = Microsoft.Msagl.Core.Layout.ILabeledObject;
 using Label = Microsoft.Msagl.Core.Layout.Label;
 using System.Runtime.Serialization;
+
+using Windows.UI.Xaml.Controls;
 
 #endregion
 
@@ -74,7 +75,7 @@ namespace Microsoft.Msagl.Drawing
     /// The Node class is derived from DrawingObject which is the base class for graph objects.
     /// </summary>
     [DataContract]
-    public class Node : DrawingObject, ILabeledObject
+    public partial class Node : DrawingObject, ILabeledObject
     {
         #region Constructor(s)
 
@@ -84,13 +85,15 @@ namespace Microsoft.Msagl.Drawing
         /// <param name="id">node name</param>
         public Node( string id )
         {
+            this.DefaultStyleKey = typeof( Node );
+
             Label = new Label();
             Label.GeometryLabel = null;
-
             Label.Owner = this;
+            Label.Text = id; // one can change the label text later - TJT: Huh???
+
             Attr = new NodeAttr();
             attr.Id = id;
-            Label.Text = id; //one can change the label later
         }
 
         #endregion
@@ -177,9 +180,101 @@ namespace Microsoft.Msagl.Drawing
             set { attr = value; }
         }
 
+        /// <summary>
+        /// gets the geometry node
+        /// </summary>
+        public override GeometryObject GeometryObject
+        {
+            get { return GeometryNode; }
+            set { GeometryNode = (Core.Layout.Node)value; }
+        }
+
+        /// <summary>
+        /// the underlying geometry node
+        /// </summary>
+        public Core.Layout.Node GeometryNode
+        {
+            get { return geometryNode; }
+            set { geometryNode = value; }
+        }
+
+        /// <summary>
+        /// a shortcut to the node label text
+        /// </summary>
+        public string LabelText
+        {
+            get { return Label != null ? Label.Text : ""; }
+            set
+            {
+                if ( Label == null )
+                    Label = new Label();
+                Label.Text = value;
+            }
+        }
+
+        /// <summary>
+        /// enumerates over all edges
+        /// </summary>
+        public IEnumerable<Edge> Edges
+        {
+            get
+            {
+                foreach ( Edge e in InEdges )
+                    yield return e;
+                foreach ( Edge e in OutEdges )
+                    yield return e;
+                foreach ( Edge e in SelfEdges )
+                    yield return e;
+            }
+        }
+
+        /// <summary>
+        /// Gets the height of the node.
+        /// </summary>
+        public double Height
+        {
+            get { return GeometryNode.Height; }
+        }
+
+        /// <summary>
+        /// Gets the width of the node.
+        /// </summary>
+        public double Width
+        {
+            get { return GeometryNode.Width; }
+        }
+
+        /// <summary>
+        /// Gets the center point of the node.
+        /// </summary>
+        public Point Pos
+        {
+            get { return GeometryNode.Center; }
+        }
+
+        /// <summary>
+        /// Gets or sets the node visibility.
+        /// </summary>
+        public override bool IsVisible
+        {
+            get
+            {
+                return base.IsVisible;
+            }
+
+            set
+            {
+                base.IsVisible = value;
+
+                if ( !value )
+                    foreach ( var edge in Edges )
+                        edge.IsVisible = false;
+            }
+        }
+
         #endregion
 
-        #region Public Methods
+        #region Public API Methods
 
         /// <summary>
         /// 
@@ -207,16 +302,6 @@ namespace Microsoft.Msagl.Drawing
             return Utils.Quote( label_text ) + "[" + Attr.ToString() + "," + GeomDataString() + "]";
         }
 
-        #endregion
-
-        string HeightString() { return "height=" + GeometryNode.Height; }
-        string WidthString() { return "width=" + GeometryNode.Width; }
-        string CenterString() { return "pos=" + string.Format( "\"{0},{1}\"", GeometryNode.Center.X, GeometryNode.Center.Y ); }
-        string GeomDataString()
-        {
-            return Utils.ConcatWithComma( HeightString(), CenterString(), WidthString() );
-        }
-        
         /// <summary>
         /// add an incoming edge to the node
         /// </summary>
@@ -274,74 +359,6 @@ namespace Microsoft.Msagl.Drawing
             selfEdges.Remove( edge );
         }
 
-        /// <summary>
-        /// gets the geometry node
-        /// </summary>
-        public override GeometryObject GeometryObject
-        {
-            get { return GeometryNode; }
-            set { GeometryNode = (Core.Layout.Node)value; }
-        }
-
-        /// <summary>
-        /// the underlying geometry node
-        /// </summary>
-        public Core.Layout.Node GeometryNode
-        {
-            get { return geometryNode; }
-            set { geometryNode = value; }
-        }
-
-        /// <summary>
-        /// a shortcut to the node label text
-        /// </summary>
-        public string LabelText
-        {
-            get { return Label != null ? Label.Text : ""; }
-            set
-            {
-                if ( Label == null )
-                    Label = new Label();
-                Label.Text = value;
-            }
-        }
-
-        /// <summary>
-        /// enumerates over all edges
-        /// </summary>
-        public IEnumerable<Edge> Edges
-        {
-            get
-            {
-                foreach ( Edge e in InEdges )
-                    yield return e;
-                foreach ( Edge e in OutEdges )
-                    yield return e;
-                foreach ( Edge e in SelfEdges )
-                    yield return e;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public double Height
-        {
-            get { return GeometryNode.Height; }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public double Width
-        {
-            get { return GeometryNode.Width; }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Point Pos { get { return GeometryNode.Center; } }
 
         /// <summary>
         /// 
@@ -365,22 +382,30 @@ namespace Microsoft.Msagl.Drawing
             return Id.GetHashCode();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public override bool IsVisible
+        #endregion
+
+        #region Private Methods
+
+        string HeightString()
         {
-            get
-            {
-                return base.IsVisible;
-            }
-            set
-            {
-                base.IsVisible = value;
-                if ( !value )
-                    foreach ( var edge in Edges )
-                        edge.IsVisible = false;
-            }
+            return "height=" + GeometryNode.Height;
         }
+
+        string WidthString()
+        {
+            return "width=" + GeometryNode.Width;
+        }
+
+        string CenterString()
+        {
+            return "pos=" + string.Format( "\"{0},{1}\"", GeometryNode.Center.X, GeometryNode.Center.Y );
+        }
+
+        string GeomDataString()
+        {
+            return Utils.ConcatWithComma( HeightString(), CenterString(), WidthString() );
+        }
+
+        #endregion
     }
 }

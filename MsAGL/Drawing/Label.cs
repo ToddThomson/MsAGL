@@ -37,6 +37,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #endregion
 
+#region Namespaces
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -50,6 +52,8 @@ using P2=Microsoft.Msagl.Core.Geometry.Point;
 using Microsoft.Msagl.Drawing;
 using System.Runtime.Serialization;
 
+#endregion
+
 namespace Microsoft.Msagl.Drawing
 {
     /// <summary>
@@ -58,37 +62,56 @@ namespace Microsoft.Msagl.Drawing
     [DataContract]
     public class Label : DrawingObject
     {
-        ///<summary>
-        ///</summary>
-        public DrawingObject Owner { get; set; }
+        Core.Layout.Label geometryLabel = new Core.Layout.Label();
+
+        #region Constructor(s)
+
         /// <summary>
         /// an empty constructor
         /// </summary>
-        public Label() { }
+        public Label() : this( "" )
+        {
+        }
 
         /// <summary>
         /// a constructor with text
         /// </summary>
-        /// <param name="textPar"></param>
-        public Label( string textPar ) { this.text = textPar; }
+        /// <param name="text"></param>
+        public Label( string text )
+        {
+            this.DefaultStyleKey = typeof( Node );
 
-        ///<summary>
-        ///</summary>
+            this.text = text;
+        }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gets or sets the drawing object control owner.
+        /// </summary>
+        public DrawingObject Owner { get; set; }
+
         public Point Center
         {
             get
             {
                 if ( Owner == null )
                     return new Point();
+
                 var edge = Owner as Edge;
+
                 if ( edge != null )
                     return edge.GeometryEdge.Label.Center;
+
                 return ((Node)Owner).GeometryNode.Center;
             }
         }
 
         double width;
         double height;
+        
         /// <summary>
         /// the width of the label
         /// </summary>
@@ -99,7 +122,8 @@ namespace Microsoft.Msagl.Drawing
             {
                 if ( GeometryLabel == null )
                     width = value;
-                else GeometryLabel.Width = value;
+                else
+                    GeometryLabel.Width = value;
             }
         }
 
@@ -108,7 +132,10 @@ namespace Microsoft.Msagl.Drawing
         /// </summary>
         public double Height
         {
-            get { return GeometryLabel == null ? height : GeometryLabel.Height; }
+            get
+            {
+                return GeometryLabel == null ? height : GeometryLabel.Height;
+            }
             set
             {
                 if ( GeometryLabel == null )
@@ -147,7 +174,7 @@ namespace Microsoft.Msagl.Drawing
         public P2 RightBottom { get { return new P2( Right, Bottom ); } }
 
         /// <summary>
-        /// returns the bounding box of the label
+        /// Returns the bounding box of the label
         /// </summary>
         override public Rectangle BoundingBox
         {
@@ -155,11 +182,15 @@ namespace Microsoft.Msagl.Drawing
         }
 
         /// <summary>
-        /// gets or sets the label size
+        /// Gets or sets the label size.
         /// </summary>
         virtual public Size Size
         {
-            get { return new Size( Width, Height ); }
+            get
+            {
+                return new Size( Width, Height );
+            }
+
             set
             {
                 Width = value.Width;
@@ -167,35 +198,15 @@ namespace Microsoft.Msagl.Drawing
             }
         }
 
-        internal Color fontcolor = Color.Black;
+        /// <summary>
+        /// Gets or sets the Label font color.
+        /// </summary>
+        public Color FontColor { get; set; } = Color.Black;
 
-        ///<summary>
-        ///Label font color.
-        ///</summary>
-        //[Description("type face color")]
-        public Color FontColor
-        {
-            get { return fontcolor; }
-            set
-            {
-                fontcolor = value;
-            }
-        }
-
-        FontStyle fontStyle = FontStyle.Regular;
-
-        ///<summary>
-        ///Label font style.
-        ///</summary>
-        //[Description("type face style")]
-        public FontStyle FontStyle
-        {
-            get { return fontStyle; }
-            set
-            {
-                fontStyle = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the Label font style.
+        /// </summary>
+        public FontStyle FontStyle { get; set; } = FontStyle.Regular;
 
         ///<summary>
         ///Type face font.
@@ -249,27 +260,15 @@ namespace Microsoft.Msagl.Drawing
             set { fontsize = value; }
         }
 
-        internal static string defaultFontName = "Times-Roman";
         /// <summary>
-        /// the name of the defaul font
+        /// Gets or sets the name of the default font.
         /// </summary>
-        public static string DefaultFontName
-        {
-            get { return defaultFontName; }
-            set { defaultFontName = value; }
-        }
+        public static string DefaultFontName { get; set; } = "Times-Roman";
 
-        static int defaultFontSize = 12;
         /// <summary>
         /// the default font size
         /// </summary>
-        static public int DefaultFontSize
-        {
-            get { return defaultFontSize; }
-            set { defaultFontSize = value; }
-        }
-
-        Core.Layout.Label geometryLabel = new Core.Layout.Label();
+        static public int DefaultFontSize { get; set; } = 12;
 
         /// <summary>
         /// gets or set geometry label
@@ -279,6 +278,7 @@ namespace Microsoft.Msagl.Drawing
             get { return geometryLabel; }
             set { geometryLabel = value; }
         }
+
         /// <summary>
         /// gets the geometry of the label
         /// </summary>
@@ -287,6 +287,7 @@ namespace Microsoft.Msagl.Drawing
             get { return GeometryLabel; }
             set { GeometryLabel = (Core.Layout.Label)value; }
         }
+
+        #endregion
     }
 }
-

@@ -125,7 +125,9 @@ namespace Microsoft.Msagl.Drawing
 
         void ViewChangeEventHandler( object sender, EventArgs e )
         {
-            if ( graph == null ) return;
+            if ( graph == null )
+                return;
+
             if ( graph.LayoutAlgorithmSettings is LgLayoutSettings )
                 geomGraphEditor.ReactOnViewChange();
         }
@@ -1304,10 +1306,8 @@ namespace Microsoft.Msagl.Drawing
             return null;
         }
 
-
-
         /// <summary>
-        /// create a tight bounding box for the graph
+        /// Create a tight bounding box for the graph.
         /// </summary>
         /// <param name="graphToFit"></param>
         public void FitGraphBoundingBox( IViewerObject graphToFit )
@@ -1315,6 +1315,7 @@ namespace Microsoft.Msagl.Drawing
             if ( graphToFit != null )
             {
                 geomGraphEditor.FitGraphBoundingBox( graphToFit, graphToFit.DrawingObject.GeometryObject as GeometryGraph );
+
                 viewer.Invalidate();
             }
         }

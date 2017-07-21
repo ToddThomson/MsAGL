@@ -45,14 +45,14 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
-using Microsoft.Msagl.Drawing;
-using Edge = Microsoft.Msagl.Drawing.Edge;
+using Msagl.Uwp.UI.Drawing;
+using Edge = Msagl.Uwp.UI.Drawing.Edge;
 using Ellipse = Microsoft.Msagl.Core.Geometry.Curves.Ellipse;
 using LineSegment = Microsoft.Msagl.Core.Geometry.Curves.LineSegment;
-using Node = Microsoft.Msagl.Drawing.Node;
+using Node = Msagl.Uwp.UI.Drawing.Node;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 using Polyline = Microsoft.Msagl.Core.Geometry.Curves.Polyline;
-using Shape = Microsoft.Msagl.Drawing.Shape;
+using Shape = Msagl.Uwp.UI.Drawing.Shape;
 using Size = Windows.Foundation.Size;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml;
@@ -64,8 +64,12 @@ using Windows.Foundation;
 
 #endregion
 
-namespace Msagl.Uwp.UI.GraphControl {
+namespace Msagl.Uwp.UI
+{
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class VNode : IViewerNode, IInvalidatable
     {
         #region Fields
@@ -147,7 +151,7 @@ namespace Msagl.Uwp.UI.GraphControl {
 
             SetupSubgraphDrawing();
 
-            Node.Attr.VisualsChanged += ( a, b ) => Invalidate();
+            Node.Attr.VisualsChanged += ( sender, args ) => Invalidate();
 
             Node.IsVisibleChanged += obj =>
             {
@@ -206,8 +210,10 @@ namespace Msagl.Uwp.UI.GraphControl {
         {
             var box = cluster.BoundaryCurve.BoundingBox;
 
-            Common.PositionFrameworkElement( _topMarginRect,
-                box.LeftTop + new Point( _topMarginRect.Width / 2, -_topMarginRect.Height / 2 ), 1 );
+            Common.PositionFrameworkElement( 
+                _topMarginRect,
+                box.LeftTop + new Point( _topMarginRect.Width / 2, -_topMarginRect.Height / 2 ),
+                1 );
         }
 
         void SetZIndexAndMouseInteractionsForTopMarginRect()
@@ -387,7 +393,7 @@ namespace Msagl.Uwp.UI.GraphControl {
         {
             byte trasparency = GetTransparency( Node.Attr.Color.A );
             BoundaryPath.Stroke = Common.BrushFromMsaglColor( 
-                new Microsoft.Msagl.Drawing.Color( trasparency, Node.Attr.Color.R, Node.Attr.Color.G, Node.Attr.Color.B ) );
+                new Msagl.Uwp.UI.Drawing.Color( trasparency, Node.Attr.Color.R, Node.Attr.Color.G, Node.Attr.Color.B ) );
             SetBoundaryFill();
 
             BoundaryPath.StrokeThickness = PathStrokeThickness;
@@ -398,7 +404,7 @@ namespace Msagl.Uwp.UI.GraphControl {
             {
                 var col = Node.Label.FontColor;
                 textBlock.Foreground = Common.BrushFromMsaglColor( 
-                    new Microsoft.Msagl.Drawing.Color( GetTransparency( col.A ), col.R, col.G, col.B ) );
+                    new Msagl.Uwp.UI.Drawing.Color( GetTransparency( col.A ), col.R, col.G, col.B ) );
             }
         }
 

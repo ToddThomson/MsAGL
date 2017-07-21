@@ -7,8 +7,8 @@
     <ProjectGuid>{C3A58D05-DFFB-4E75-A498-D9E1AD9D6FC0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MsAgl.Drawing</RootNamespace>
-    <AssemblyName>Msagl.Drawing</AssemblyName>
+    <RootNamespace>MsAgl.Uwp.Drawing</RootNamespace>
+    <AssemblyName>Msagl.Uwp.Drawing</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.15063.0</TargetPlatformVersion>
@@ -158,6 +158,8 @@
     <Compile Include="Node.cs" />
     <Compile Include="NodeAttr.cs" />
     <Compile Include="NodeBoundaryCurves.cs" />
+    <Compile Include="NodeCollection.cs" />
+    <Compile Include="NodeControl.cs" />
     <Compile Include="PhyloEdge.cs" />
     <Compile Include="PhyloTree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -178,6 +180,12 @@
       <Project>{7078dad3-b1c8-4e99-9c83-dff6647c7cc9}</Project>
       <Name>MsAGL</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

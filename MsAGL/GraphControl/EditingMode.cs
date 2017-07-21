@@ -14,8 +14,11 @@ using System;
 
 #endregion
 
-namespace Msagl.Uwp.UI.GraphControl
+namespace Msagl.Uwp.UI
 {
+    /// <summary>
+    /// The interactive graph viewer editing modes.
+    /// </summary>
     public enum EditingMode
     {
         Default,

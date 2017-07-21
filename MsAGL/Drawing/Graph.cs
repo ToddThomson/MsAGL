@@ -37,6 +37,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #endregion
 
+#region Namespaces
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -51,23 +53,103 @@ using Microsoft.Msagl.Layout.Layered;
 using P2 = Microsoft.Msagl.Core.Geometry.Point;
 using System.Runtime.Serialization;
 
+#endregion
+
 namespace Microsoft.Msagl.Drawing
 {
     /// <summary>
-    /// Graph for drawing. Putting an instance of this class to property Graph triggers the layout under the hood
+    /// Graph for drawing. Putting an instance of this class to property Graph triggers the layout under the hood.
     /// </summary>
     [DataContract]
     public class Graph : DrawingObject, ILabeledObject
     {
+        #region Fields
+
+        const string FileExtension = ".msagl";
+
+        LayoutAlgorithmSettings layoutAlgorithm = new SugiyamaLayoutSettings();
+
         private Subgraph rootSubgraph = new Subgraph( "the root subgraph's boundary" );
-        
+
+        LayerConstraints layerConstraints = new LayerConstraints();
+
+        Dictionary<string, Subgraph> subgraphMap = new Dictionary<string, Subgraph>();
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// The Graph constructor without specifying a label or id.
+        /// </summary>
+        public Graph() : this( "" )
+        {
+        }
+
+        /// <summary>
+        /// The Graph constructor specifying the label.
+        /// </summary>
+        /// <param name="label">The graph label</param>
+        public Graph( string label )
+        {
+            Label = new Label();
+            id = Label.Text = label;
+
+            InitAttributes();
+        }
+
+        /// <summary>
+        /// Graph constructor specifying the label and id.
+        /// </summary>
+        /// <param name="label">graph label</param>
+        /// <param name="id">graph id</param>
+        public Graph( string label, string id )
+        {
+            this.id = id;
+            Label = new Label();
+            Label.Text = label;
+
+            InitAttributes();
+        }
+
+        #endregion
+
+        #region Properties
+
         ///<summary>
         /// The root subgraph.
         ///</summary>
         public Subgraph RootSubgraph
         {
             get { return rootSubgraph; }
+
             set { rootSubgraph = value; }
+        }
+
+        /// <summary>
+        /// The label of the Graph.
+        /// </summary>
+        public Label Label { get; set; }
+
+        ///<summary>
+        /// The graph nodes collection.
+        ///</summary>
+        public IEnumerable<Node> Nodes
+        {
+            get
+            {
+                foreach ( var r in nodeMap.Values )
+                    yield return (Node)r;
+            }
+        }
+
+        /// <summary>
+        /// The properties of the layout algorithm
+        /// </summary>
+        public LayoutAlgorithmSettings LayoutAlgorithmSettings
+        {
+            get { return layoutAlgorithm; }
+            set { layoutAlgorithm = value; }
         }
 
 #if TEST_MSAGL
@@ -83,42 +165,18 @@ namespace Microsoft.Msagl.Drawing
             set { dataBase = value; }
         }
 #endif
-
-        /// <summary>
-        /// the label of the object
-        /// </summary>
-        public Label Label { get; set; }
-        
         ///<summary>
-        /// The nodes collection
+        /// Gets or sets the graph layer contstaints.
         ///</summary>
-        public IEnumerable<Node> Nodes
+        public LayerConstraints LayerConstraints
         {
-            get
-            {
-                foreach ( var r in nodeMap.Values )
-                    yield return (Node)r;
-            }
+            get { return layerConstraints; }
+            set { layerConstraints = value; }
         }
 
-        LayoutAlgorithmSettings layoutAlgorithm = new SugiyamaLayoutSettings();
+        #endregion
 
-        /// <summary>
-        /// the properties of the layout algorithm
-        /// </summary>
-        public LayoutAlgorithmSettings LayoutAlgorithmSettings
-        {
-            get { return layoutAlgorithm; }
-            set { layoutAlgorithm = value; }
-        }
-
-        void WriteNodes( TextWriter sw )
-        {
-            sw.WriteLine( "//nodes" );
-            foreach ( Node node in nodeMap.Values )
-                sw.WriteLine( node.ToString() );
-        }
-
+        #region Public API/Methods
 
         /// <summary>
         /// Prints Microsoft.Msagl.Drawing in the DOT format - has side effects!
@@ -140,24 +198,10 @@ namespace Microsoft.Msagl.Drawing
             return sw.ToString();
         }
 
-
-        void WriteEdges( TextWriter tw )
-        {
-            foreach ( Edge edge in Edges )
-            {
-                tw.WriteLine( edge.ToDotGeometry() );
-            }
-        }
-
-        void WriteStms( TextWriter sw )
-        {
-            sw.WriteLine( attr.ToString( Label.Text ) );
-            WriteNodes( sw );
-            WriteEdges( sw );
-        }
+        #endregion
 
         /// <summary>
-        /// Returns the bounding box of the graph
+        /// Returns the bounding box of the graph.
         /// </summary>
         public override Rectangle BoundingBox
         {
@@ -172,6 +216,7 @@ namespace Microsoft.Msagl.Drawing
         Rectangle PumpByBorder( Rectangle rectangle )
         {
             var del = new P2( Attr.Border, Attr.Border );
+
             return new Rectangle( rectangle.LeftBottom - del, rectangle.RightTop + del );
         }
 
@@ -487,7 +532,6 @@ namespace Microsoft.Msagl.Drawing
         }
 #endif
 
-
         /// <summary>
         /// The enumeration of edges. One need to be careful with calling Edges.Count() since it enumerates the whole collection
         /// </summary>
@@ -517,40 +561,9 @@ namespace Microsoft.Msagl.Drawing
 
         Hashtable idToEdges = new Hashtable();
 
-        [SuppressMessage( "Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields" )] string id;
+        [SuppressMessage( "Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields" )]
+        string id;
 
-        /// <summary>
-        /// Graph constructor
-        /// </summary>
-        /// <param name="label">graph label</param>
-        /// <param name="id">graph id</param>
-        public Graph( string label, string id )
-        {
-            this.id = id;
-            Label = new Label();
-            Label.Text = label;
-
-            InitAttributes();
-        }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        public Graph() : this( "" )
-        {
-        }
-
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="labelPar"></param>
-        public Graph( string labelPar )
-        {
-            Label = new Label();
-            id = Label.Text = labelPar;
-            InitAttributes();
-        }
 
         void InitAttributes()
         {
@@ -677,21 +690,6 @@ namespace Microsoft.Msagl.Drawing
         }
 #endif
 
-        LayerConstraints layerConstraints = new LayerConstraints();
-        Dictionary<string, Subgraph> subgraphMap = new Dictionary<string, Subgraph>();
-
-
-        ///<summary>
-        /// 
-        ///</summary>
-        public LayerConstraints LayerConstraints
-        {
-            get { return layerConstraints; }
-            set { layerConstraints = value; }
-        }
-
-        const string FileExtension = ".msagl";
-
         /// <summary>
         /// Write the graph to a file
         /// </summary>
@@ -716,6 +714,7 @@ namespace Microsoft.Msagl.Drawing
         public void WriteToStream( Stream stream )
         {
             var graphWriter = new GraphWriter( stream, this );
+
             graphWriter.Write();
         }
 
@@ -740,7 +739,35 @@ namespace Microsoft.Msagl.Drawing
         public static Graph ReadGraphFromStream( Stream stream )
         {
             var graphReader = new GraphReader( stream );
+
             return graphReader.Read();
         }
+
+        #region Private Methods
+
+        void WriteEdges( TextWriter tw )
+        {
+            foreach ( Edge edge in Edges )
+            {
+                tw.WriteLine( edge.ToDotGeometry() );
+            }
+        }
+
+        void WriteStms( TextWriter sw )
+        {
+            sw.WriteLine( attr.ToString( Label.Text ) );
+            WriteNodes( sw );
+            WriteEdges( sw );
+        }
+
+        void WriteNodes( TextWriter sw )
+        {
+            sw.WriteLine( "//nodes" );
+
+            foreach ( Node node in nodeMap.Values )
+                sw.WriteLine( node.ToString() );
+        }
+
+        #endregion
     }
 }

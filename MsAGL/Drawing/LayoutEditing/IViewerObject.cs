@@ -47,7 +47,7 @@ using Microsoft.Msagl.Core.Geometry;
 namespace Microsoft.Msagl.Drawing
 {
     /// <summary>
-    /// An interface for entity that can be an editable object 
+    /// An interface for entity that can be an editable object.
     /// </summary>
     public interface IViewerObject
     {

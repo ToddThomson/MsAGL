@@ -59,7 +59,7 @@ namespace Microsoft.Msagl.Drawing
         Node Node { get; }
         
         /// <summary>
-        /// IncomMing editable edges.
+        /// Incomming editable edges.
         /// </summary>
         IEnumerable<IViewerEdge> InEdges { get; }
         
@@ -69,7 +69,7 @@ namespace Microsoft.Msagl.Drawing
         IEnumerable<IViewerEdge> OutEdges { get; }
         
         /// <summary>
-        /// Self editable edges
+        /// Gets the self editable edges.
         /// </summary>
         IEnumerable<IViewerEdge> SelfEdges { get; }
 

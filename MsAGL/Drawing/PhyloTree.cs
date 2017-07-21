@@ -68,18 +68,17 @@ namespace Microsoft.Msagl.Drawing {
                 l = "";
 
 
-            PhyloEdge edge = new PhyloEdge(source, target, 1) {
-                                                                  SourceNode = AddNode(source),
-                                                                  TargetNode = AddNode(target)
-                                                              };
+            PhyloEdge edge = new PhyloEdge( source, target, 1 )
+            {
+                SourceNode = AddNode( source ),
+                TargetNode = AddNode( target )
+            };
 
             if (source != target) {
                 edge.SourceNode.AddOutEdge(edge);
                 edge.TargetNode.AddInEdge(edge);
             } else
                 edge.SourceNode.AddSelfEdge(edge);
-
-
 
             return edge;
         }

@@ -41,7 +41,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Msagl.Drawing;
+using Msagl.Uwp.UI.Drawing;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Shapes;
@@ -50,7 +50,7 @@ using Windows.UI;
 
 #endregion
 
-namespace Msagl.Uwp.UI.GraphControl
+namespace Msagl.Uwp.UI
 {
     internal class VLabel : IViewerObject, IInvalidatable
     {
@@ -103,7 +103,7 @@ namespace Msagl.Uwp.UI.GraphControl
 
         public void Invalidate()
         {
-            var label = (Microsoft.Msagl.Drawing.Label)DrawingObject;
+            var label = (Msagl.Uwp.UI.Drawing.Label)DrawingObject;
             Common.PositionFrameworkElement( FrameworkElement, label.Center, 1 );
             var geomLabel = label.GeometryLabel;
 

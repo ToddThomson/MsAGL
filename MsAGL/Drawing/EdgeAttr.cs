@@ -37,18 +37,19 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #endregion
 
+#region Namespaces
+
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
+#endregion
+
 namespace Microsoft.Msagl.Drawing {
+    
     /// <summary>
     /// Edge layout attributes.
     /// </summary>
-#if !SILVERLIGHT && ! WINDOWS_UWP
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Attr"), Description("Edge layout attributes."),
-    TypeConverterAttribute(typeof(ExpandableObjectConverter))]
-#endif
     [DataContract]
     public sealed class EdgeAttr : AttributeBase
     {

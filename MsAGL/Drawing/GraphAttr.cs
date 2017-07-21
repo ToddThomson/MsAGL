@@ -185,6 +185,7 @@ namespace Microsoft.Msagl.Drawing
         }
 
         private LayerDirection layerdir = LayerDirection.TB;
+
         /// <summary>
         /// Directs node layers
         /// </summary>
@@ -193,6 +194,7 @@ namespace Microsoft.Msagl.Drawing
             get { return layerdir; }
             set { layerdir = value; }
         }
+        
         ///<summary>
         ///Separation between layers in
         ///</summary>

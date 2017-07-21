@@ -19,9 +19,9 @@ using Windows.UI.Xaml.Shapes;
 
 #endregion
 
-namespace Msagl.GraphControl
+namespace Msagl.Uwp.UI.Controls
 {
-    internal class DraggingCanvas : Canvas
+    internal class DragPanel : Canvas
     {
         Color DefaultBorderColor = Colors.Blue;
         Color DefaultBackColor = Color.FromArgb( 10, 0, 0, 255 );
@@ -34,7 +34,7 @@ namespace Msagl.GraphControl
 
         #region Constructor
 
-        public DraggingCanvas()
+        public DragPanel()
         {
             draggingFrame = new Rectangle();
             this.Children.Add( draggingFrame );

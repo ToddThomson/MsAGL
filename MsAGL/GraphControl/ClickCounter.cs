@@ -1,3 +1,11 @@
+#region Copyright Notice
+
+// Copyright (c) by Achilles Software, All rights reserved.
+//
+// Licensed under the MIT License. See License.txt in the project root for license information.
+//
+// Send questions regarding this copyright notice to: mailto:todd.thomson@achilles-software.com
+
 /*
 Microsoft Automatic Graph Layout,MSAGL 
 
@@ -27,13 +35,19 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-﻿using System;
-using Microsoft.Msagl.Drawing;
+#endregion
+
+#region Namespaces
+
+using System;
+using Msagl.Uwp.UI.Drawing;
 using Windows.UI.Xaml;
 using Windows.Foundation;
 using System.Numerics;
 
-namespace Msagl.Uwp.UI.GraphControl
+#endregion
+
+namespace Msagl.Uwp.UI
 {
     internal class ClickCounter
     {

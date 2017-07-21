@@ -33,7 +33,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #region Namespaces
 
-using Microsoft.Msagl.Drawing;
+using Msagl.Uwp.UI.Controls;
+using Msagl.Uwp.UI.Drawing;
+
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Input;
@@ -42,7 +44,7 @@ using Windows.UI.Xaml.Input;
 
 #endregion
 
-namespace Msagl.Uwp.UI.GraphControl
+namespace Msagl.Uwp.UI
 {
     internal class GraphViewerPointerEventArgs : MsaglPointerEventArgs
     {

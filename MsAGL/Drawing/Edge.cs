@@ -37,12 +37,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #endregion
 
+#region Namespaces
+
 using System;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using P2 = Microsoft.Msagl.Core.Geometry.Point;
 using Rectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 using System.Runtime.Serialization;
+
+#endregion
 
 namespace Microsoft.Msagl.Drawing
 {
@@ -54,15 +58,66 @@ namespace Microsoft.Msagl.Drawing
     public delegate bool DelegateToOverrideEdgeRendering( Edge edge, object graphics );
     
     /// <summary>
-    /// Edge of Microsoft.Msagl.Drawing
+    /// Represents a graph edge or connector.
     /// </summary>
     [DataContract]
     public class Edge : DrawingObject, ILabeledObject
     {
+        #region Constructor(s)
+
+        /// <summary>
+        /// Edge Constructor specifying source id, label, target id
+        /// </summary>
+        /// <param name="source"> cannot be null</param>
+        /// <param name="labelText">label text. Can be null.</param>
+        /// <param name="target">The target node id. Cannot be null.</param>
+        public Edge( string source, string labelText, string target )
+        {
+
+            if ( String.IsNullOrEmpty( source ) || String.IsNullOrEmpty( target ) )
+                throw new InvalidOperationException( "Creating an edge with null or empty source or target IDs" );
+
+            Source = source;
+            Target = target;
+
+            this.Attr = new EdgeAttr();
+
+            if ( !String.IsNullOrEmpty( labelText ) )
+            {
+                Label = new Label( labelText ) { Owner = this };
+            }
+        }
+
+        /// <summary>
+        /// Edge constructor for creating a detached edge.
+        /// </summary>
+        /// <param name="sourceNode"></param>
+        /// <param name="targetNode"></param>
+        /// <param name="connection">controls is the edge will be connected to the graph</param>
+        public Edge( Node sourceNode, Node targetNode, ConnectionToGraph connection )
+            : this( sourceNode.Id, null, targetNode.Id )
+        {
+            this.SourceNode = sourceNode;
+            this.TargetNode = targetNode;
+
+            if ( connection == ConnectionToGraph.Connected )
+            {
+                if ( sourceNode == targetNode )
+                    sourceNode.AddSelfEdge( this );
+                else
+                {
+                    sourceNode.AddOutEdge( this );
+                    targetNode.AddInEdge( this );
+                }
+            }
+        }
+
+        #endregion
+
         #region Properties
 
         /// <summary>
-        /// the edge source node ID
+        /// The edge source node ID
         /// </summary>
         public string Source { get; private set; }
 
@@ -72,7 +127,7 @@ namespace Microsoft.Msagl.Drawing
         public string Target { get; private set; }
 
         /// <summary>
-        /// the edge source node
+        /// Gets or sets the edge source node
         /// </summary>
         public Node SourceNode { get; set; }
 
@@ -82,7 +137,7 @@ namespace Microsoft.Msagl.Drawing
         public Node TargetNode { get; internal set; }
 
         /// <summary>
-        /// gets the corresponding geometry edge
+        /// Gets or sets the corresponding geometry edge.
         /// </summary>
         public override GeometryObject GeometryObject
         {
@@ -106,12 +161,12 @@ namespace Microsoft.Msagl.Drawing
         }
 
         /// <summary>
-        /// gets and sets the geometry edge
+        /// Gets or sets the corresponding geometry edge.
         /// </summary>
         public Core.Layout.Edge GeometryEdge { get; set; }
 
         /// <summary>
-        /// A delegate to draw node
+        /// A delegate to draw edge.
         /// </summary>
         DelegateToOverrideEdgeRendering drawEdgeDelegate;
       
@@ -137,7 +192,7 @@ namespace Microsoft.Msagl.Drawing
         public Port TargetPort { get; set; }
 
         /// <summary>
-        /// the label of the object
+        /// Gets or sets the label drawing object of the edge.
         /// </summary>
         public Label Label { get; set; }
         
@@ -150,6 +205,7 @@ namespace Microsoft.Msagl.Drawing
             {
                 return Label == null ? "" : Label.Text;
             }
+
             set
             {
                 if ( Label == null )
@@ -160,7 +216,7 @@ namespace Microsoft.Msagl.Drawing
         }
 
         /// <summary>
-        /// the edge bounding box
+        /// The edge bounding box
         /// </summary>
         override public Rectangle BoundingBox
         {
@@ -216,7 +272,7 @@ namespace Microsoft.Msagl.Drawing
             }
         }
         /// <summary>
-        /// the arrow position
+        /// Gets or sets the edge arrow position.
         /// </summary>
         public P2 ArrowAtSourcePosition
         {
@@ -243,54 +299,7 @@ namespace Microsoft.Msagl.Drawing
         
         #endregion
 
-        #region Constructor(s)
-
-        /// <summary>
-        /// source id, label ,target id
-        /// </summary>
-        /// <param name="source"> cannot be null</param>
-        /// <param name="labelText">label can be null</param>
-        /// <param name="target">cannot be null</param>
-        public Edge( string source, string labelText, string target )
-        {
-            if ( String.IsNullOrEmpty( source ) || String.IsNullOrEmpty( target ) )
-                throw new InvalidOperationException( "Creating an edge with null or empty source or target IDs" );
-
-            Source = source;
-            Target = target;
-
-            this.Attr = new EdgeAttr();
-
-            if ( !String.IsNullOrEmpty( labelText ) )
-            {
-                Label = new Label( labelText ) { Owner = this };
-            }
-        }
-
-        /// <summary>
-        /// creates a detached edge
-        /// </summary>
-        /// <param name="sourceNode"></param>
-        /// <param name="targetNode"></param>
-        /// <param name="connection">controls is the edge will be connected to the graph</param>
-        public Edge( Node sourceNode, Node targetNode, ConnectionToGraph connection )
-            : this( sourceNode.Id, null, targetNode.Id )
-        {
-            this.SourceNode = sourceNode;
-            this.TargetNode = targetNode;
-            if ( connection == ConnectionToGraph.Connected )
-            {
-                if ( sourceNode == targetNode )
-                    sourceNode.AddSelfEdge( this );
-                else
-                {
-                    sourceNode.AddOutEdge( this );
-                    targetNode.AddInEdge( this );
-                }
-            }
-        }
-
-        #endregion
+        #region Public API Methods
 
         /// <summary>
         /// Head->Tail->Label.
@@ -300,6 +309,7 @@ namespace Microsoft.Msagl.Drawing
         {
             return Utils.Quote( Source ) + " -> " + Utils.Quote( Target ) + (Label == null ? "" : "[" + Label.Text + "]");
         }
+        
         /// <summary>
         /// Head->Tail->Label.
         /// </summary>
@@ -309,6 +319,10 @@ namespace Microsoft.Msagl.Drawing
             return Utils.Quote( Source ) + " -> " + Utils.Quote( Target ) +
                 "[" + Utils.ConcatWithComma( (Label == null ? "" : Label.Text), DotGeomString( GeometryEdge ), Attr.ToStringWithText( "" ) ) + "]";
         }
+
+        #endregion
+
+        #region Private Methods
 
         private string DotGeomString( Core.Layout.Edge geometryEdge )
         {
@@ -340,6 +354,6 @@ namespace Microsoft.Msagl.Drawing
             return "pos=" + Utils.Quote( ret );
         }
 
-        
+        #endregion
     }
 }

@@ -374,7 +374,6 @@ namespace Microsoft.Msagl.Core.Layout {
             edgeGeometry.RaiseLayoutChangeEvent(newValue);
         }
 
-        
         /// <summary>
         /// 
         /// </summary>

@@ -8,7 +8,7 @@
 
 #endregion
 
-namespace Msagl.Uwp.UI.GraphControl
+namespace Msagl.Uwp.UI
 {
     public enum ZoomMode
     {

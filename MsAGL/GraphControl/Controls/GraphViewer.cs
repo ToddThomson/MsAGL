@@ -48,15 +48,15 @@ using Microsoft.Msagl.Core;
 using Microsoft.Msagl.Core.Geometry;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
-using Microsoft.Msagl.Drawing;
+using Msagl.Uwp.UI.Drawing;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
 using Microsoft.Msagl.Miscellaneous;
 using Microsoft.Msagl.Miscellaneous.LayoutEditing;
 
-using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
-using ILabeledObject = Microsoft.Msagl.Drawing.ILabeledObject;
-using Label = Microsoft.Msagl.Drawing.Label;
-using ModifierKeys = Microsoft.Msagl.Drawing.ModifierKeys;
+using DrawingEdge = Msagl.Uwp.UI.Drawing.Edge;
+using ILabeledObject = Msagl.Uwp.UI.Drawing.ILabeledObject;
+using Label = Msagl.Uwp.UI.Drawing.Label;
+using ModifierKeys = Msagl.Uwp.UI.Drawing.ModifierKeys;
 using Node = Microsoft.Msagl.Core.Layout.Node;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 using Rectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
@@ -80,25 +80,32 @@ using Windows.UI.Text;
 using Windows.UI.Popups;
 using Windows.UI.Xaml.Media.Imaging;
 using System.Threading.Tasks;
-using Msagl.GraphControl;
 using Windows.Graphics.Display;
+using System.Collections;
 
 #endregion
 
-namespace Msagl.Uwp.UI.GraphControl
+namespace Msagl.Uwp.UI.Controls
 {
     /// <summary>
     /// A <see cref="Control"/> that implements graph node and edge data visualization.
     /// </summary>
     /// </summary>
-    [TemplatePart( Name = ContainerPartName, Type = typeof( Grid ))]
+    [TemplatePart( Name = GraphLayoutRootPartName, Type = typeof( Grid ))]
     [TemplatePart( Name = ScrollViewerPartName, Type = typeof( ScrollViewer ))]
     [TemplatePart( Name = GraphCanvasPartName, Type = typeof( Canvas ) )]
     [TemplatePart( Name = GraphBorderPartName, Type = typeof( Border ) )]
+    [TemplatePart( Name = DragPanelPartName, Type = typeof( Canvas ) )]
     public class GraphViewer : Control, IViewer
     {
         #region Dependency Properties
-        
+
+        /// <summary>
+        /// Identifies the <see cref="ItemsSource"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ItemsSourceProperty =
+            DependencyProperty.Register( nameof( ItemsSource ), typeof( object ), typeof( GraphViewer ), new PropertyMetadata( null, OnItemsSourceChanged ) );
+
         /// <summary>
         /// Identifies the <see cref="GraphBorderStyle"/> dependency property.
         /// </summary>
@@ -106,7 +113,7 @@ namespace Msagl.Uwp.UI.GraphControl
             DependencyProperty.Register( nameof( GraphBorderStyle ), typeof( Windows.UI.Xaml.Style ), typeof( GraphViewer ), new PropertyMetadata( null ) );
         
         /// <summary>
-        /// Identifies the Minimum dependency property.
+        /// Identifies the ShowGrid dependency property.
         /// </summary>
         public static readonly DependencyProperty ShowGridProperty =
             DependencyProperty.Register( nameof( ShowGrid ), typeof( bool ), typeof( GraphViewer ), new PropertyMetadata( false ) );
@@ -116,6 +123,23 @@ namespace Msagl.Uwp.UI.GraphControl
         /// </summary>
         public static readonly DependencyProperty ZoomModeProperty =
             DependencyProperty.Register( nameof( ZoomMode ), typeof( ZoomMode ), typeof( GraphViewer ), new PropertyMetadata( ZoomMode.ZoomToPointer ) );
+
+
+        /// <summary>
+        /// Gets or sets a collection used to generate the content of the <see cref="GraphViewer"/>. 
+        /// </summary>
+        public IEnumerable ItemsSource
+        {
+            get
+            {
+                return this.GetValue( ItemsSourceProperty ) as IEnumerable;
+            }
+            set
+            {
+                this.SetValue( ItemsSourceProperty, value );
+            }
+        }
+
         #endregion
 
         #region Events
@@ -127,10 +151,11 @@ namespace Msagl.Uwp.UI.GraphControl
 
         #region Fields
 
-        private const string ContainerPartName = "PART_GraphContainer";
+        private const string GraphLayoutRootPartName = "PART_GraphLayoutRoot";
         private const string GraphCanvasPartName = "PART_GraphCanvas";
         private const string GraphBorderPartName = "PART_GraphBorder";
         private const string ScrollViewerPartName = "PART_GraphScrollViewer";
+        private const string DragPanelPartName = "PART_DragPanel";
 
         Path _targetArrowheadPathForRubberEdge;
         Path _rubberEdgePath;
@@ -139,45 +164,57 @@ namespace Msagl.Uwp.UI.GraphControl
 
         BackgroundWorker _backgroundWorker;
         CancelToken _cancelToken = new CancelToken();
+        /* Thread layoutThread; */
 
         PointerPoint _pointerPressedPoint = null;
-
         UwpPoint _objectUnderMouseDetectionLocation;
-
-        Ellipse _sourcePortCircle;
-
-        Canvas _graphCanvas;
-        DraggingCanvas _editingPanel = new DraggingCanvas();
-
-        readonly LayoutEditor layoutEditor;
-        Graph _drawingGraph;
-
         PointerPoint _dragStartPoint;
         Pointer _graphCanvasCapturedPointer;
         object _objectUnderPointer;
 
+        Ellipse _sourcePortCircle;
+
+        /// <summary>
+        /// The Graph layout root (PART_GraphLayoutRoot) template part of the GraphViewer control.
+        /// </summary>
+        Grid _graphLayoutRoot;
+
+        /// <summary>
+        /// The Graph Canvas (PART_GraphCanvas) template part of the GraphViewer control.
+        /// </summary>
+        Canvas _graphCanvas;
+
+        /// <summary>
+        /// The Drag Panel (PART_DragPanel) template part of the GraphViewer control
+        /// </summary>
+        DragPanel _dragPanel;
+
+        readonly LayoutEditor layoutEditor;
+
+        Graph _drawingGraph;
+
         readonly Dictionary<DrawingObject, FrameworkElement> drawingObjectsToFrameworkElements =
             new Dictionary<DrawingObject, FrameworkElement>();
-
-        GeometryGraph geometryGraphUnderLayout;
-
-        /* Thread layoutThread; */
-
-        bool needToCalculateLayout = true;
-
-        static double _dpiX;
-        static double _dpiY;
 
         readonly Dictionary<DrawingObject, IViewerObject> drawingObjectsToIViewerObjects =
             new Dictionary<DrawingObject, IViewerObject>();
 
+        GeometryGraph geometryGraphUnderLayout;
+
+        static double _dpiX;
+        static double _dpiY;
+
+        /// <summary>
+        /// A rectangle that bounds the graph elements.
+        /// </summary>
         FrameworkElement _rectToFillGraphBackground;
+
+        /// <summary>
+        /// A rectangle that fills the entire graph canvas.
+        /// </summary>
         Windows.UI.Xaml.Shapes.Rectangle _rectToFillCanvas;
 
-        GeometryGraph GeomGraph
-        {
-            get { return _drawingGraph.GeometryGraph; }
-        }
+        internal NodeCollection dataSource;
 
         #endregion
 
@@ -199,6 +236,11 @@ namespace Msagl.Uwp.UI.GraphControl
         public ZoomMode ZoomMode { get; set; }
 
         /// <summary>
+        /// Set to true to perform layout in an async task.
+        /// </summary>
+        public bool RunLayoutAsync { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets the <see cref="Windows.UI.Xaml.Style"/> instance that describes the visual appearance of the graph <see cref="Border"/>border style.
         /// </summary>
         public Windows.UI.Xaml.Style GraphBorderStyle
@@ -213,16 +255,16 @@ namespace Msagl.Uwp.UI.GraphControl
             }
         }
 
+        GeometryGraph GeomGraph
+        {
+            get { return _drawingGraph.GeometryGraph; }
+        }
+        
         #endregion
 
         /*
         readonly DispatcherTimer layoutThreadCheckingTimer = new DispatcherTimer();
         */
-
-        /// <summary>
-        /// Set to true to perform layout in an async task.
-        /// </summary>
-        public bool RunLayoutAsync = false;
 
         #region Constructor(s)
 
@@ -255,7 +297,6 @@ namespace Msagl.Uwp.UI.GraphControl
         public void BindToPanel( Panel panel )
         {
             panel.Children.Add( GraphCanvas );
-            panel.Children.Add( _editingPanel );
 
             GraphCanvas.UpdateLayout();
         }
@@ -282,9 +323,7 @@ namespace Msagl.Uwp.UI.GraphControl
 
         void ClickCounterElapsed( object sender, EventArgs e )
         {
-            var vedge = clickCounter.ClickedObject as VEdge;
-
-            if ( vedge != null )
+            if ( clickCounter.ClickedObject is VEdge vedge )
             {
                 if ( clickCounter.UpCount == clickCounter.DownCount && clickCounter.UpCount == 1 )
                     HandleClickForEdge( vedge );
@@ -293,16 +332,19 @@ namespace Msagl.Uwp.UI.GraphControl
             clickCounter.ClickedObject = null;
         }
 
+        // TJT: This method name is opaque to me! When is this event handler called? Called anytime the graph canvas changes due to a transform.
         void AdjustBtrectRenderTransform( object sender, EventArgs e )
         {
             if ( _rectToFillCanvas == null )
                 return;
 
             _rectToFillCanvas.RenderTransform = (Transform)_graphCanvas.RenderTransform.Inverse;
+
+            // The GraphCanvas parent is the PART_GraphContainer grid
             var parent = (Panel)GraphCanvas.Parent;
+
             _rectToFillCanvas.Width = parent.ActualWidth;
             _rectToFillCanvas.Height = parent.ActualHeight;
-
         }
 
         //void GraphCanvasRightMouseUp( object sender, PointerRoutedEventArgs e )
@@ -313,8 +355,7 @@ namespace Msagl.Uwp.UI.GraphControl
         void HandleClickForEdge( VEdge vEdge )
         {
             //todo : add a hook
-            var lgSettings = Graph.LayoutAlgorithmSettings as LgLayoutSettings;
-            if ( lgSettings != null )
+            if ( Graph.LayoutAlgorithmSettings is LgLayoutSettings lgSettings )
             {
                 var lgEi = lgSettings.GeometryEdgesToLgEdgeInfos[ vEdge.Edge.GeometryEdge ];
                 lgEi.SlidingZoomLevel = lgEi.SlidingZoomLevel != 0 ? 0 : double.PositiveInfinity;
@@ -412,7 +453,7 @@ namespace Msagl.Uwp.UI.GraphControl
 
             _pointerPressedPoint = pointerInfo;
 
-            _dragStartPoint = pointerArgs.GetCurrentPoint( _editingPanel );
+            _dragStartPoint = pointerArgs.GetCurrentPoint( _dragPanel );
 
             //_pointerPressedPositionInGraph_initialized = true;
         }
@@ -428,7 +469,7 @@ namespace Msagl.Uwp.UI.GraphControl
 
             if ( pointerInfo.Properties.IsLeftButtonPressed && (!LayoutEditingEnabled || _objectUnderPointer == null) )
             {
-                // TJT: Pointer pressed event handler must set this.
+                // TJT: Pointer pressed event handler must set this. This code is wrong.
 
                 //if ( !_pointerPressedPositionInGraph_initialized )
                 //{
@@ -446,6 +487,10 @@ namespace Msagl.Uwp.UI.GraphControl
                         Select( pointerArgs );
                         break;
 
+                    case EditingMode.Zoom:
+                        Zoom( pointerArgs );
+                        break;
+
                     default:
                         Select( pointerArgs );
                         break;
@@ -456,6 +501,7 @@ namespace Msagl.Uwp.UI.GraphControl
             {
                 // Retrieve the coordinate of the pointer position.
                 UwpPoint pointerPosition = pointerInfo.Position;
+                
                 // Clear the contents of the list used for hit test results.
                 ObjectUnderPointer = null;
 
@@ -486,7 +532,7 @@ namespace Msagl.Uwp.UI.GraphControl
         void GraphCanvasPointerReleased( object sender, PointerRoutedEventArgs e )
         {
             // Clear any editor adornments...
-            _editingPanel.HideDraggingFrame();
+            _dragPanel.HideDraggingFrame();
 
             OnPointerReleased( e );
 
@@ -515,9 +561,10 @@ namespace Msagl.Uwp.UI.GraphControl
             var rect = new Rect(
                 new UwpPoint( pt.X - MouseHitTolerance, pt.Y - MouseHitTolerance ),
                 new UwpPoint( pt.X + MouseHitTolerance, pt.Y + MouseHitTolerance ) );
-            var expandedHitTestArea = new RectangleGeometry();
-
-            expandedHitTestArea.Rect = rect;
+            var expandedHitTestArea = new RectangleGeometry()
+            {
+                Rect = rect
+            };
 
             // Set up a callback to receive the hit test result enumeration.
             var hitElements = VisualTreeHelper.FindElementsInHostCoordinates( rect, _graphCanvas );
@@ -528,14 +575,13 @@ namespace Msagl.Uwp.UI.GraphControl
                 //    return HitTestResultBehavior.Continue;
 
                 var tag = (frameworkElement as FrameworkElement).Tag;
-                var iviewerObj = tag as IViewerObject;
 
-                if ( iviewerObj != null )
+                if ( tag is IViewerObject iviewerObj )
                 {
                     if ( ObjectUnderPointer is IViewerEdge || ObjectUnderPointer == null
                         || Canvas.GetZIndex( frameworkElement ) > Canvas.GetZIndex( GetFrameworkElementFromIViewerObject( ObjectUnderPointer ) ) )
                     {
-                        //always overwrite an edge or take the one with greater zIndex
+                        // Always overwrite an edge or take the one with greater zIndex
                         ObjectUnderPointer = iviewerObj;
                     }
                 }
@@ -624,10 +670,10 @@ namespace Msagl.Uwp.UI.GraphControl
                     _graphCanvasCapturedPointer = pointerArgs.Pointer;
             }
 
-            var dragEndPoint = pointerArgs.GetCurrentPoint( _editingPanel );
+            var dragEndPoint = pointerArgs.GetCurrentPoint( _dragPanel );
             var frameRect = new Rect( _dragStartPoint.Position, dragEndPoint.Position );
 
-            _editingPanel.DrawDraggingFrame( frameRect, Windows.UI.Color.FromArgb( 20, 0, 0, 255 ), new DoubleCollection() { 1,1 } );
+            _dragPanel.DrawDraggingFrame( frameRect, Windows.UI.Color.FromArgb( 20, 0, 0, 255 ), new DoubleCollection() { 1,1 } );
         }
 
         private void Select( PointerRoutedEventArgs pointerArgs )
@@ -641,15 +687,15 @@ namespace Msagl.Uwp.UI.GraphControl
                     _graphCanvasCapturedPointer = pointerArgs.Pointer;
             }
 
-            var dragEndPoint = pointerArgs.GetCurrentPoint( _editingPanel );
+            var dragEndPoint = pointerArgs.GetCurrentPoint( _dragPanel );
             var frameRect = new Rect( _dragStartPoint.Position, dragEndPoint.Position );
 
-            _editingPanel.DrawDraggingFrame( frameRect, Windows.UI.Color.FromArgb( 20, 0, 0, 255 ), new DoubleCollection() { 2, 3 } );
+            _dragPanel.DrawDraggingFrame( frameRect, Windows.UI.Color.FromArgb( 20, 0, 0, 255 ), new DoubleCollection() { 2, 3 } );
         }
 
-        void Pan( PointerRoutedEventArgs e )
+        private void Pan( PointerRoutedEventArgs e )
         {
-            // Is Layout in progress - TJT: adjust Property name isLayoutInProgress
+            // Is Layout in progress - TJT: adjust Property name isBackgroundLayoutInProgress
             if ( UnderLayout )
                 return;
 
@@ -711,6 +757,9 @@ namespace Msagl.Uwp.UI.GraphControl
 
         #region IViewer
 
+        /// <summary>
+        /// The event that occurs when the graph canvas view changes.
+        /// </summary>
         public event EventHandler<EventArgs> ViewChangeEvent;
 
         public event EventHandler<MsaglPointerEventArgs> PointerPressed;
@@ -917,7 +966,7 @@ namespace Msagl.Uwp.UI.GraphControl
                 if ( _drawingGraph != null )
                     Debug.WriteLine( "starting processing a graph with {0} nodes and {1} edges", _drawingGraph.NodeCount, _drawingGraph.EdgeCount );
 
-                ProcessGraph();
+                LayoutGraph();
             }
         }
         
@@ -951,17 +1000,17 @@ namespace Msagl.Uwp.UI.GraphControl
             return DesiredPathThicknessInInches * DpiX / CurrentScale;
         }
 
-        readonly Object _processGraphLock = new object();
+        readonly Object _layoutGraphLock = new object();
 
-        void ProcessGraph()
+        private void LayoutGraph()
         {
-            lock ( _processGraphLock )
+            lock ( _layoutGraphLock )
             {
-                ProcessGraphUnderLock();
+                LayoutGraphUnderLock();
             }
         }
 
-        private void ProcessGraphUnderLock()
+        private void LayoutGraphUnderLock()
         {
             try
             {
@@ -972,10 +1021,13 @@ namespace Msagl.Uwp.UI.GraphControl
                 if ( _drawingGraph == null )
                     return;
 
-                HideCanvas();
+                HideGraphCanvas();
                 ClearGraphViewer();
+
+                // TJT: This seems rather opaque. There must be a better way once nodes and edges are fully XAML template controls.
                 CreateFrameworkElementsForLabelsOnly();
 
+                // TJT: This prob. has a purpose, but not sure what! Printing? Rendering to Bitmap?
                 if ( NeedToCalculateLayout )
                 {
                     _drawingGraph.CreateGeometryGraph();
@@ -995,7 +1047,7 @@ namespace Msagl.Uwp.UI.GraphControl
                 geometryGraphUnderLayout = _drawingGraph.GeometryGraph;
 
                 if ( RunLayoutAsync )
-                    SetUpBackgrounWorkerAndRunAsync();
+                    RunLayoutInBackground();
                 else
                     RunLayoutInUIThread();
             }
@@ -1007,16 +1059,16 @@ namespace Msagl.Uwp.UI.GraphControl
 
         void RunLayoutInUIThread()
         {
-            LayoutGraph();
+            LayoutWorker();
             PostLayoutStep();
 
             LayoutComplete?.Invoke( null, null );
         }
 
-        void SetUpBackgrounWorkerAndRunAsync()
+        void RunLayoutInBackground()
         {
             _backgroundWorker = new BackgroundWorker();
-            _backgroundWorker.DoWork += ( a, b ) => LayoutGraph();
+            _backgroundWorker.DoWork += ( a, b ) => LayoutWorker();
             _backgroundWorker.RunWorkerCompleted += ( sender, args ) =>
             {
                 if ( args.Error != null )
@@ -1050,7 +1102,7 @@ namespace Msagl.Uwp.UI.GraphControl
             _backgroundWorker.RunWorkerAsync();
         }
 
-        async void HideCanvas()
+        async void HideGraphCanvas()
         {
             if ( _graphCanvas.Dispatcher.HasThreadAccess )
                 _graphCanvas.Visibility = Visibility.Collapsed; // hide canvas while we lay it out asynchronously.
@@ -1058,14 +1110,20 @@ namespace Msagl.Uwp.UI.GraphControl
                 await _graphCanvas.Dispatcher.RunAsync( CoreDispatcherPriority.Normal, () => _graphCanvas.Visibility = Visibility.Collapsed );
         }
 
-        void LayoutGraph()
+        /// <summary>
+        /// The graph layout handler.
+        /// </summary>
+        private void LayoutWorker()
         {
             if ( NeedToCalculateLayout )
             {
                 try
                 {
-                    LayoutHelpers.CalculateLayout( geometryGraphUnderLayout, _drawingGraph.LayoutAlgorithmSettings,
-                                                  CancelToken );
+                    LayoutHelpers.CalculateLayout( 
+                        geometryGraphUnderLayout, 
+                        _drawingGraph.LayoutAlgorithmSettings,
+                        CancelToken );
+
                     if ( MsaglFileToSave != null )
                     {
                         _drawingGraph.Write( MsaglFileToSave );
@@ -1093,22 +1151,24 @@ namespace Msagl.Uwp.UI.GraphControl
             GraphChanged?.Invoke( this, null );
         }
 
-        /*
-                void SubscribeToChangeVisualsEvents() {
-                    //            foreach(var cluster in drawingGraph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf())
-                    //                cluster.Attr.VisualsChanged += AttrVisualsChanged;
-                    foreach (var edge in drawingGraph.Edges) {
-                        DrawingEdge edge1 = edge;
-                        edge.Attr.VisualsChanged += (a, b) => AttrVisualsChangedForEdge(edge1);
-                    }
+        //void SubscribeToChangeVisualsEvents()
+        //{
+        //    //            foreach(var cluster in drawingGraph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf())
+        //    //                cluster.Attr.VisualsChanged += AttrVisualsChanged;
+        //    foreach ( var edge in drawingGraph.Edges )
+        //    {
+        //        DrawingEdge edge1 = edge;
+        //        edge.Attr.VisualsChanged += ( a, b ) => AttrVisualsChangedForEdge( edge1 );
+        //    }
 
-                    foreach (var node in drawingGraph.Nodes) {
-                        Drawing.Node node1 = node;
-                        node.Attr.VisualsChanged += (a, b) => AttrVisualsChangedForNode(node1);
-                    }
+        //    foreach ( var node in drawingGraph.Nodes )
+        //    {
+        //        Drawing.Node node1 = node;
+        //        node.Attr.VisualsChanged += ( a, b ) => AttrVisualsChangedForNode( node1 );
+        //    }
 
-                }
-        */
+        //}
+        
 
         /*
                 void AttrVisualsChangedForNode(Drawing.Node node) {
@@ -1158,14 +1218,15 @@ namespace Msagl.Uwp.UI.GraphControl
         /// </summary>
         /// <param name="drawingNode"></param>
         /// <returns></returns>
-        public IViewerNode CreateIViewerNode( Microsoft.Msagl.Drawing.Node drawingNode )
+        public IViewerNode CreateIViewerNode( Msagl.Uwp.UI.Drawing.Node drawingNode )
         {
             var frameworkElement = CreateTextBlockForDrawingObj( drawingNode );
-            var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin;
+            var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin +20;
             var height = frameworkElement.Height + 2 * drawingNode.Attr.LabelMargin;
             var bc = NodeBoundaryCurves.GetNodeBoundaryCurve( drawingNode, width, height );
             drawingNode.GeometryNode = new Node( bc, drawingNode );
             var vNode = CreateVNode( drawingNode );
+
             layoutEditor.AttachLayoutChangeEvent( vNode );
 
             return vNode;
@@ -1268,8 +1329,7 @@ namespace Msagl.Uwp.UI.GraphControl
 
             foreach ( var node in _drawingGraph.Nodes.Concat( _drawingGraph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf() ) )
             {
-                IViewerObject o;
-                if ( drawingObjectsToIViewerObjects.TryGetValue( node, out o ) )
+                if ( drawingObjectsToIViewerObjects.TryGetValue( node, out IViewerObject o ) )
                 {
                     ((VNode)o).Invalidate();
                 }
@@ -1354,6 +1414,8 @@ namespace Msagl.Uwp.UI.GraphControl
 
             _graphCanvas.RenderTransform = new MatrixTransform() { Matrix = new Matrix( scale, 0, 0, -scale, dx, dy ) };
 
+            _graphCanvas.InvalidateMeasure();
+
             ViewChangeEvent?.Invoke( null, null );
         }
 
@@ -1376,9 +1438,7 @@ namespace Msagl.Uwp.UI.GraphControl
             {
                 var geomGraph = GeomGraph;
 
-                if ( _drawingGraph == null || geomGraph == null ||
-
-                    geomGraph.Width == 0 || geomGraph.Height == 0 )
+                if ( _drawingGraph == null || geomGraph == null || geomGraph.Width == 0 || geomGraph.Height == 0 )
                     return 1;
 
                 var size = _graphCanvas.RenderSize;
@@ -1387,20 +1447,31 @@ namespace Msagl.Uwp.UI.GraphControl
             }
         }
 
+        /// <summary>
+        /// Determines the fit ratio of the size parameter ( usually the _graphCanvas RenderSize ) to the size of the GeomGraph.
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <returns></returns>
         double GetFitFactor( Size rect )
         {
             var geomGraph = GeomGraph;
+
             return geomGraph == null ? 1 : Math.Min( rect.Width / geomGraph.Width, rect.Height / geomGraph.Height );
         }
 
         void PushDataFromLayoutGraphToFrameworkElements()
         {
+            // TJT: The RectToFillCanvas is a rectangle that fills the GraphCanvas. What is the purpose?
             CreateRectToFillCanvas();
+
+            // TJT: The Background Rectangle is the bounding rectangle of the graph objects ( nodes, edges, etc ). What is the purpose?
             CreateAndPositionGraphBackgroundRectangle();
+
             CreateVNodes();
             CreateEdges();
         }
 
+        // TJT: What is the purpose of the rectangle that fills the graph canvas?
         void CreateRectToFillCanvas()
         {
             var parent = (Panel)GraphCanvas.Parent;
@@ -1414,10 +1485,11 @@ namespace Msagl.Uwp.UI.GraphControl
 
             _rectToFillCanvas.Fill = new SolidColorBrush( Colors.Transparent );
 
-            // TJT: Temp
+            // TJT: Temp to show position in Canvas
             _rectToFillCanvas.StrokeDashArray = new DoubleCollection() { 2,3 };
             _rectToFillCanvas.Stroke = new SolidColorBrush( Colors.Green );
             _rectToFillCanvas.Fill = new SolidColorBrush( Colors.LightGreen );
+            _rectToFillCanvas.Name = "_rectToFillCanvas";
             // ----
 
             Canvas.SetZIndex( _rectToFillCanvas, -2 );
@@ -1520,7 +1592,7 @@ namespace Msagl.Uwp.UI.GraphControl
             }
         }
 
-        IViewerNode CreateVNode( Microsoft.Msagl.Drawing.Node node )
+        IViewerNode CreateVNode( Msagl.Uwp.UI.Drawing.Node node )
         {
             lock ( this )
             {
@@ -1562,15 +1634,21 @@ namespace Msagl.Uwp.UI.GraphControl
             }
         }
 
-        public FrameworkElement CreateAndRegisterFrameworkElementOfDrawingNode( Microsoft.Msagl.Drawing.Node node )
+        public FrameworkElement CreateAndRegisterFrameworkElementOfDrawingNode( Msagl.Uwp.UI.Drawing.Node node )
         {
             lock ( this )
                 return drawingObjectsToFrameworkElements[ node ] = CreateTextBlockForDrawingObj( node );
         }
 
+        /// <summary>
+        /// Creates and initializes a rectangle that has bounds given by the size of graph.  
+        /// </summary>
         void CreateAndPositionGraphBackgroundRectangle()
         {
+            // Creates the class field _rectToFillGraphBackground.
             CreateGraphBackgroundRect();
+
+            // NOTE: This method is never called after initialization.
             SetBackgroundRectanglePositionAndSize();
 
             var rect = _rectToFillGraphBackground as XamlShapes.Rectangle;
@@ -1578,10 +1656,10 @@ namespace Msagl.Uwp.UI.GraphControl
             if ( rect != null )
             {
                 rect.Fill = Common.BrushFromMsaglColor( _drawingGraph.Attr.BackgroundColor );
+                rect.Name = "GraphBackgroundRectangle";
 
-                // Temp override
+                // Temp testing override
                 rect.Fill = new SolidColorBrush( Colors.Cyan );
-                rect.Name = "GraphBackground";
                 //
             }
 
@@ -1592,6 +1670,8 @@ namespace Msagl.Uwp.UI.GraphControl
 
         void CreateGraphBackgroundRect()
         {
+            // TJT: This code does not make sense given the logic of the only calling method.
+
             var lgGraphBrowsingSettings = _drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings;
 
             if ( lgGraphBrowsingSettings == null )
@@ -1600,11 +1680,14 @@ namespace Msagl.Uwp.UI.GraphControl
             }
         }
 
+        // TJT: This method is only called a single time upon initializing the graph. This logic is broken.
         void SetBackgroundRectanglePositionAndSize()
         {
             if ( GeomGraph == null )
                 return;
             
+            // TJT: Review this code...
+
             // Canvas.SetLeft(_rectToFillGraphBackground, geomGraph.Left);
             // Canvas.SetTop(_rectToFillGraphBackground, geomGraph.Bottom);
 
@@ -1612,6 +1695,7 @@ namespace Msagl.Uwp.UI.GraphControl
             _rectToFillGraphBackground.Height = GeomGraph.Height;
 
             var center = GeomGraph.BoundingBox.Center;
+
             Common.PositionFrameworkElement( _rectToFillGraphBackground, center, 1 );
         }
 
@@ -1621,7 +1705,7 @@ namespace Msagl.Uwp.UI.GraphControl
 
             foreach ( Node msaglNode in geometryGraphUnderLayout.Nodes )
             {
-                var node = (Microsoft.Msagl.Drawing.Node)msaglNode.UserData;
+                var node = (Msagl.Uwp.UI.Drawing.Node)msaglNode.UserData;
 
                 if ( _graphCanvas.Dispatcher.HasThreadAccess )
                     msaglNode.BoundaryCurve = GetNodeBoundaryCurve( node );
@@ -1689,7 +1773,6 @@ namespace Msagl.Uwp.UI.GraphControl
             if ( textBoxForApproxNodeBoundaries == null )
                 SetUpTextBoxForApproxNodeBoundaries();
 
-
             double width, height;
             if ( String.IsNullOrEmpty( subgraph.LabelText ) )
                 height = width = subgraph.DiameterOfOpenCollapseButton;
@@ -1712,7 +1795,6 @@ namespace Msagl.Uwp.UI.GraphControl
             return NodeBoundaryCurves.GetNodeBoundaryCurve( subgraph, width, height );
         }
 
-
         void AssignLabelWidthHeight( Microsoft.Msagl.Core.Layout.ILabeledObject labeledGeomObj,
                                     DrawingObject drawingObj )
         {
@@ -1724,8 +1806,7 @@ namespace Msagl.Uwp.UI.GraphControl
             }
         }
 
-
-        ICurve GetNodeBoundaryCurve( Microsoft.Msagl.Drawing.Node node )
+        ICurve GetNodeBoundaryCurve( Msagl.Uwp.UI.Drawing.Node node )
         {
             double width, height;
             FrameworkElement fe;
@@ -1768,7 +1849,7 @@ namespace Msagl.Uwp.UI.GraphControl
             //return new Size( formattedText.Width, formattedText.Height );
         }
 
-        ICurve GetNodeBoundaryCurveByMeasuringText( Microsoft.Msagl.Drawing.Node node )
+        ICurve GetNodeBoundaryCurveByMeasuringText( Msagl.Uwp.UI.Drawing.Node node )
         {
             double width, height;
             if ( String.IsNullOrEmpty( node.LabelText ) )
@@ -1813,10 +1894,13 @@ namespace Msagl.Uwp.UI.GraphControl
             foreach ( var edge in _drawingGraph.Edges )
             {
                 var fe = CreateDefaultFrameworkElementForDrawingObject( edge );
+
                 if ( fe != null )
                 {
                     if ( _graphCanvas.Dispatcher.HasThreadAccess )
+                    {
                         fe.Tag = new VLabel( edge, fe );
+                    }
                     else
                     {
                         var localEdge = edge;
@@ -1863,7 +1947,10 @@ namespace Msagl.Uwp.UI.GraphControl
                 return registeredCreator( drawingObj );
 
             if ( drawingObj is Subgraph )
-                return null; //todo: add Label support later
+            {
+                // TODO: add Label support for Subgraphs
+                return null;
+            }
 
             var labeledObj = drawingObj as ILabeledObject;
 
@@ -1879,7 +1966,7 @@ namespace Msagl.Uwp.UI.GraphControl
 
             if ( _graphCanvas.Dispatcher.HasThreadAccess )
             {
-                textBlock = CreateTextBlock( drawingLabel );
+                textBlock = CreateTextBlockForLabel( drawingLabel );
             }
             else
             {
@@ -1889,15 +1976,15 @@ namespace Msagl.Uwp.UI.GraphControl
             return textBlock;
         }
 
-        static TextBlock CreateTextBlock( Label drawingLabel )
+        static TextBlock CreateTextBlockForLabel( Label label )
         {
             var textBlock = new TextBlock
             {
-                Tag = drawingLabel,
-                Text = drawingLabel.Text,
-                FontFamily = new FontFamily( drawingLabel.FontName ),
-                FontSize = drawingLabel.FontSize,
-                Foreground = Common.BrushFromMsaglColor( drawingLabel.FontColor )
+                Tag = label,
+                Text = label.Text,
+                FontFamily = new FontFamily( label.FontName ),
+                FontSize = label.FontSize,
+                Foreground = Common.BrushFromMsaglColor( label.FontColor )
             };
 
             textBlock.Measure( new Size( double.PositiveInfinity, double.PositiveInfinity ) );
@@ -1963,7 +2050,7 @@ namespace Msagl.Uwp.UI.GraphControl
             layoutEditor.CleanObstacles();
         }
 
-        public IViewerObject AddNode( Microsoft.Msagl.Drawing.Node drawingNode )
+        public IViewerObject AddNode( Msagl.Uwp.UI.Drawing.Node drawingNode )
         {
             Graph.AddNode( drawingNode );
             var vNode = CreateVNode( drawingNode );
@@ -2129,12 +2216,12 @@ namespace Msagl.Uwp.UI.GraphControl
                 var m = mt.Matrix;
                 return new PlaneTransformation( m.M11, m.M12, m.OffsetX, m.M21, m.M22, m.OffsetY );
             }
+
             set
             {
                 SetRenderTransformWithoutRaisingEvents( value );
 
-                if ( ViewChangeEvent != null )
-                    ViewChangeEvent( null, null );
+                ViewChangeEvent?.Invoke( null, null );
             }
         }
 
@@ -2147,11 +2234,10 @@ namespace Msagl.Uwp.UI.GraphControl
             };
         }
 
-        public bool NeedToCalculateLayout
-        {
-            get { return needToCalculateLayout; }
-            set { needToCalculateLayout = value; }
-        }
+        /// <summary>
+        /// Gets or sets a flag to enable graph layout.
+        /// </summary>
+        public bool NeedToCalculateLayout { get; set; } = true;
 
         /// <summary>
         /// the cancel token used to cancel a long running layout
@@ -2196,7 +2282,7 @@ namespace Msagl.Uwp.UI.GraphControl
 
         #endregion
 
-        public IViewerNode CreateIViewerNode( Microsoft.Msagl.Drawing.Node drawingNode, Point center, object visualElement )
+        public IViewerNode CreateIViewerNode( Msagl.Uwp.UI.Drawing.Node drawingNode, Point center, object visualElement )
         {
             if ( _drawingGraph == null )
                 return null;
@@ -2214,7 +2300,7 @@ namespace Msagl.Uwp.UI.GraphControl
             return vNode;
         }
 
-        void MakeRoomForNewNode( Microsoft.Msagl.Drawing.Node drawingNode )
+        void MakeRoomForNewNode( Msagl.Uwp.UI.Drawing.Node drawingNode )
         {
             IncrementalDragger incrementalDragger = new IncrementalDragger( 
                 new[] { drawingNode.GeometryNode },
@@ -2225,7 +2311,7 @@ namespace Msagl.Uwp.UI.GraphControl
 
             foreach ( var n in incrementalDragger.ChangedGraph.Nodes )
             {
-                var dn = (Microsoft.Msagl.Drawing.Node)n.UserData;
+                var dn = (Msagl.Uwp.UI.Drawing.Node)n.UserData;
                 var vn = drawingObjectsToIViewerObjects[ dn ] as VNode;
 
                 if ( vn != null )
@@ -2234,7 +2320,7 @@ namespace Msagl.Uwp.UI.GraphControl
 
             foreach ( var n in incrementalDragger.ChangedGraph.Edges )
             {
-                var dn = (Microsoft.Msagl.Drawing.Edge)n.UserData;
+                var dn = (Msagl.Uwp.UI.Drawing.Edge)n.UserData;
                 var ve = drawingObjectsToIViewerObjects[ dn ] as VEdge;
 
                 if ( ve != null )
@@ -2248,8 +2334,24 @@ namespace Msagl.Uwp.UI.GraphControl
         {
             base.OnApplyTemplate();
 
+            _graphLayoutRoot = (Grid)GetTemplateChild( GraphLayoutRootPartName );
+            //InitializeGraphLayoutRoot();
+
             _graphCanvas = (Canvas)GetTemplateChild( GraphCanvasPartName );
             InitializeGraphCanvas();
+
+            _dragPanel = (DragPanel)GetTemplateChild( DragPanelPartName );
+
+            UpdateVisualStates( false );
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void InitializeGraphLayoutRoot()
+        {
+            //_graphLayoutRoot
         }
 
         private void InitializeGraphCanvas()
@@ -2257,15 +2359,35 @@ namespace Msagl.Uwp.UI.GraphControl
             _graphCanvas.MinHeight = 32;
             _graphCanvas.MinHeight = 32;
 
-            //_graphCanvas.VerticalAlignment = VerticalAlignment.Center;
-            //_graphCanvas.HorizontalAlignment = HorizontalAlignment.Center;
-
             _graphCanvas.SizeChanged += GraphCanvasSizeChanged;
 
             _graphCanvas.PointerPressed += GraphCanvasPointerPressed;
             _graphCanvas.PointerMoved += GraphCanvasPointerMoved;
             _graphCanvas.PointerReleased += GraphCanvasPointerReleased;
             _graphCanvas.PointerWheelChanged += GraphCanvasPointerWheelChanged;
+        }
+
+        private void UpdateVisualStates( bool useTransitions )
+        {
+            // There are current no visual states defined for the graph viewer control.
+
+            //if ( Value >= 0 )
+            //{
+            //    VisualStateManager.GoToState( this, "Positive", useTransitions );
+            //}
+            //else
+            //{
+            //    VisualStateManager.GoToState( this, "Negative", useTransitions );
+            //}
+        }
+
+
+        private static void OnItemsSourceChanged( DependencyObject d, DependencyPropertyChangedEventArgs e )
+        {
+            // TJT: Placehol
+            GraphViewer graphViewer = d as GraphViewer;
+
+            graphViewer.dataSource = e.NewValue as NodeCollection;
         }
 
         #endregion

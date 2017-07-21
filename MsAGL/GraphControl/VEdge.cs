@@ -45,11 +45,12 @@ using System.Collections.Generic;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.DebugHelpers;
-using Microsoft.Msagl.Drawing;
+using Msagl.Uwp.UI.Controls;
+using Msagl.Uwp.UI.Drawing;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
 using Microsoft.Msagl.Routing;
-using Color = Microsoft.Msagl.Drawing.Color;
-using Edge = Microsoft.Msagl.Drawing.Edge;
+using Color = Msagl.Uwp.UI.Drawing.Color;
+using Edge = Msagl.Uwp.UI.Drawing.Edge;
 using Ellipse = Microsoft.Msagl.Core.Geometry.Curves.Ellipse;
 using LineSegment = Microsoft.Msagl.Core.Geometry.Curves.LineSegment;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
@@ -64,11 +65,22 @@ using Windows.UI;
 
 #endregion
 
-namespace Msagl.Uwp.UI.GraphControl
+namespace Msagl.Uwp.UI
 {
     internal class VEdge : IViewerEdge, IInvalidatable
     {
+        #region events
+
+        public event EventHandler MarkedForDraggingEvent;
+        public event EventHandler UnmarkedForDraggingEvent;
+
+        #endregion
+
+        #region Fields
+
         internal FrameworkElement LabelFrameworkElement;
+
+        #endregion
 
         #region Constructor(s)
 
@@ -107,7 +119,7 @@ namespace Msagl.Uwp.UI.GraphControl
                 LabelFrameworkElement = labelFrameworkElement;
                 Common.PositionFrameworkElement( LabelFrameworkElement, edge.Label.Center, 1 );
             }
-            edge.Attr.VisualsChanged += ( a, b ) => Invalidate();
+            edge.Attr.VisualsChanged += ( sender, args ) => Invalidate();
 
             edge.IsVisibleChanged += obj =>
             {
@@ -116,6 +128,12 @@ namespace Msagl.Uwp.UI.GraphControl
                     frameworkElement.Visibility = edge.IsVisible ? Visibility.Visible : Visibility.Collapsed;
                 }
             };
+        }
+
+        public VEdge( Edge edge, LgLayoutSettings lgSettings )
+        {
+            Edge = edge;
+            EdgeAttrClone = edge.Attr.Clone();
         }
 
         #endregion
@@ -422,8 +440,7 @@ namespace Msagl.Uwp.UI.GraphControl
         }
 
         public bool MarkedForDragging { get; set; }
-        public event EventHandler MarkedForDraggingEvent;
-        public event EventHandler UnmarkedForDraggingEvent;
+
 
         #endregion
 
@@ -492,11 +509,11 @@ namespace Msagl.Uwp.UI.GraphControl
 
             foreach ( var style in Edge.Attr.Styles )
             {
-                if ( style == Microsoft.Msagl.Drawing.Style.Dotted )
+                if ( style == Msagl.Uwp.UI.Drawing.Style.Dotted )
                 {
                     path.StrokeDashArray = new DoubleCollection { 1, 1 };
                 }
-                else if ( style == Microsoft.Msagl.Drawing.Style.Dashed )
+                else if ( style == Msagl.Uwp.UI.Drawing.Style.Dashed )
                 {
                     var f = DashSize();
                     path.StrokeDashArray = new DoubleCollection { f, f };
@@ -525,11 +542,11 @@ namespace Msagl.Uwp.UI.GraphControl
 
             foreach ( var style in Edge.Attr.Styles )
             {
-                if ( style == Microsoft.Msagl.Drawing.Style.Dotted )
+                if ( style == Msagl.Uwp.UI.Drawing.Style.Dotted )
                 {
                     path.StrokeDashArray = new DoubleCollection { 1, 1 };
                 }
-                else if ( style == Microsoft.Msagl.Drawing.Style.Dashed )
+                else if ( style == Msagl.Uwp.UI.Drawing.Style.Dashed )
                 {
                     var f = DashSize();
                     path.StrokeDashArray = new DoubleCollection { f, f };
@@ -538,42 +555,12 @@ namespace Msagl.Uwp.UI.GraphControl
             }
         }
 
-        public override string ToString()
-        {
-            return Edge.ToString();
-        }
+        
 
         internal static double dashSize = 0.05; //inches
         internal Func<double> PathStrokeThicknessFunc;
 
-        public VEdge( Edge edge, LgLayoutSettings lgSettings )
-        {
-            Edge = edge;
-            EdgeAttrClone = edge.Attr.Clone();
-        }
-
-        internal double DashSize()
-        {
-            var w = PathStrokeThickness;
-            var dashSizeInPoints = dashSize * GraphViewer.DpiXStatic;
-
-            return dashSize = dashSizeInPoints / w;
-        }
-
-        internal void RemoveItselfFromCanvas( Canvas graphCanvas )
-        {
-            if ( CurvePath != null )
-                graphCanvas.Children.Remove( CurvePath );
-
-            if ( SourceArrowHeadPath != null )
-                graphCanvas.Children.Remove( SourceArrowHeadPath );
-
-            if ( TargetArrowHeadPath != null )
-                graphCanvas.Children.Remove( TargetArrowHeadPath );
-
-            if ( VLabel != null )
-                graphCanvas.Children.Remove( VLabel.FrameworkElement );
-        }
+        
 
         public FrameworkElement CreateFrameworkElementForRail( Rail rail, byte edgeTransparency )
         {
@@ -602,6 +589,36 @@ namespace Msagl.Uwp.UI.GraphControl
 
             return fe;
         }
+
+        public override string ToString()
+        {
+            return Edge.ToString();
+        }
+
+        internal double DashSize()
+        {
+            var w = PathStrokeThickness;
+            var dashSizeInPoints = dashSize * GraphViewer.DpiXStatic;
+
+            return dashSize = dashSizeInPoints / w;
+        }
+
+        internal void RemoveItselfFromCanvas( Canvas graphCanvas )
+        {
+            if ( CurvePath != null )
+                graphCanvas.Children.Remove( CurvePath );
+
+            if ( SourceArrowHeadPath != null )
+                graphCanvas.Children.Remove( SourceArrowHeadPath );
+
+            if ( TargetArrowHeadPath != null )
+                graphCanvas.Children.Remove( TargetArrowHeadPath );
+
+            if ( VLabel != null )
+                graphCanvas.Children.Remove( VLabel.FrameworkElement );
+        }
+
+        
 
         FrameworkElement CreateFrameworkElementForRailArrowhead( Rail rail, Arrowhead arrowhead, Point curveAttachmentPoint, byte edgeTransparency )
         {

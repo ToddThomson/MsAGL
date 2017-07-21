@@ -28,7 +28,6 @@ namespace Microsoft.Msagl.Drawing {
         /// <returns>quoted string</returns>
         public static string Quote(string s) { return "\"" + s + "\""; }
 
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         //static int ToByte(double c){
         //    return (int)(255.0*c+0.5);
@@ -51,12 +50,9 @@ namespace Microsoft.Msagl.Drawing {
 
         }
 
-
-        
         public static string ConcatWithComma(params string[] s) {
             return ConcatWithDelimeter(",", s);
         }
-
 
         public static string ConcatWithDelimeter(string delimeter, params string[] s) {
             List<string> ns = new List<string>();
@@ -74,7 +70,6 @@ namespace Microsoft.Msagl.Drawing {
                 ret += delimeter + ns[i];
             return ret;
         }
-
 
         public static string ConcatWithLineEnd(params string[] s) {
             return ConcatWithDelimeter("\r\n", s);
@@ -124,7 +119,6 @@ namespace Microsoft.Msagl.Drawing {
         Rounded
     }
 
-
     /// <summary>
     /// http://www.graphviz.org/cvs/doc/info/attrs.html#k:arrowType
     /// </summary>
@@ -158,6 +152,7 @@ namespace Microsoft.Msagl.Drawing {
         /// </summary>
         Generalization
     }
+    
     /// <summary>
     /// http://www.graphviz.org/cvs/doc/info/attrs.html#k:dirType
     /// </summary>
@@ -183,11 +178,6 @@ namespace Microsoft.Msagl.Drawing {
         /// </summary>
         None
     }
-
-
-
-
-
 
     /// <summary>
     /// http://www.graphviz.org/cvs/doc/info/attrs.html#aa:orientation

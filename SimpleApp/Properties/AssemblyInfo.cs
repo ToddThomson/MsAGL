@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SimpleApp")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Simple MsAGL Graph Viewer for UWP")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Achilles Software")]
 [assembly: AssemblyProduct("SimpleApp")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]

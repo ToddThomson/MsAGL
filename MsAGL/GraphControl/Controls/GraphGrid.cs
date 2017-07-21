@@ -24,7 +24,7 @@ using Windows.UI.Xaml.Shapes;
 
 #endregion
 
-namespace Msagl.Uwp.UI.GraphControl
+namespace Msagl.Uwp.UI.Controls
 {
     public sealed class GraphGrid : Control
     {

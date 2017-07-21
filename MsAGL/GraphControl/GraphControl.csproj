@@ -7,8 +7,8 @@
     <ProjectGuid>{24B80892-9828-4139-8D85-34B9733329AB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Msagl.Uwp.UI.GraphControl</RootNamespace>
-    <AssemblyName>Msagl.GraphControl</AssemblyName>
+    <RootNamespace>Msagl.Uwp.UI</RootNamespace>
+    <AssemblyName>Msagl.Uwp.Graph</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.15063.0</TargetPlatformVersion>
@@ -108,14 +108,78 @@
   <ItemGroup>
     <Compile Include="ClickCounter.cs" />
     <Compile Include="Common.cs" />
-    <Compile Include="GraphGrid.cs" />
-    <Compile Include="DraggingCanvas.cs" />
+    <Compile Include="Controls\GraphGrid.cs" />
+    <Compile Include="Controls\DragPanel.cs" />
+    <Compile Include="Drawing\AttributeBase.cs" />
+    <Compile Include="Drawing\Color.cs" />
+    <Compile Include="Drawing\ConnectionToGraph.cs" />
+    <Compile Include="Drawing\DrawingEnums.cs" />
+    <Compile Include="Drawing\DrawingObject.cs" />
+    <Compile Include="Drawing\Edge.cs" />
+    <Compile Include="Drawing\EdgeAttr.cs" />
+    <Compile Include="Drawing\Enums.cs" />
+    <Compile Include="Drawing\FontStyle.cs" />
+    <Compile Include="Drawing\GeometryGraphCreator.cs" />
+    <Compile Include="Drawing\GlobalSuppressions.cs" />
+    <Compile Include="Drawing\Graph.cs" />
+    <Compile Include="Drawing\GraphAttr.cs" />
+    <Compile Include="Drawing\GraphPresenter.cs" />
+    <Compile Include="Drawing\GraphReader.cs" />
+    <Compile Include="Drawing\GraphWriter.cs" />
+    <Compile Include="Drawing\HorizontalConstraintsForLayeredLayout.cs" />
+    <Compile Include="Drawing\Label.cs" />
+    <Compile Include="Drawing\LayerConstraints.cs" />
+    <Compile Include="Drawing\LayoutEditing\AddEdgeUndoAction.cs" />
+    <Compile Include="Drawing\LayoutEditing\AddNodeUndoAction.cs" />
+    <Compile Include="Drawing\LayoutEditing\DelegateForEdge.cs" />
+    <Compile Include="Drawing\LayoutEditing\DelegateForIViewerObject.cs" />
+    <Compile Include="Drawing\LayoutEditing\DraggingMode.cs" />
+    <Compile Include="Drawing\LayoutEditing\EdgeDragUndoRedoAction.cs" />
+    <Compile Include="Drawing\LayoutEditing\GeometryGraphEditor.cs" />
+    <Compile Include="Drawing\LayoutEditing\IEditableObject.cs" />
+    <Compile Include="Drawing\LayoutEditing\ILabeledObject.cs" />
+    <Compile Include="Drawing\LayoutEditing\IViewer.cs" />
+    <Compile Include="Drawing\LayoutEditing\IViewerEdge.cs" />
+    <Compile Include="Drawing\LayoutEditing\IViewerGraph.cs" />
+    <Compile Include="Drawing\LayoutEditing\IViewerNode.cs" />
+    <Compile Include="Drawing\LayoutEditing\IViewerObject.cs" />
+    <Compile Include="Drawing\LayoutEditing\LayoutEditor.cs" />
+    <Compile Include="Drawing\LayoutEditing\MouseAndKeysAnalyzer.cs" />
+    <Compile Include="Drawing\LayoutEditing\NewNodeFactory.cs" />
+    <Compile Include="Drawing\LayoutEditing\ObjectDragUndoRedoAction.cs" />
+    <Compile Include="Drawing\LayoutEditing\ObjectUnderPointerChangedArgs.cs" />
+    <Compile Include="Drawing\LayoutEditing\PolylineCornerType.cs" />
+    <Compile Include="Drawing\LayoutEditing\RemoveEdgeUndoAction.cs" />
+    <Compile Include="Drawing\LayoutEditing\RemoveNodeAndoAction.cs" />
+    <Compile Include="Drawing\LayoutEditing\SiteInsertUndoAction.cs" />
+    <Compile Include="Drawing\LayoutEditing\SiteRemoveUndoAction.cs" />
+    <Compile Include="Drawing\LayoutEditing\UndoRedoAction.cs" />
+    <Compile Include="Drawing\LayoutEditing\UndoRedoActionsList.cs" />
+    <Compile Include="Drawing\LayoutEditing\VoidDelegate.cs" />
+    <Compile Include="Drawing\ModifierKeys.cs" />
+    <Compile Include="Drawing\MouseButtons.cs" />
+    <Compile Include="Drawing\MsaglMouseEventArgs.cs" />
+    <Compile Include="Drawing\Node.cs" />
+    <Compile Include="Drawing\NodeAttr.cs" />
+    <Compile Include="Drawing\NodeBoundaryCurves.cs" />
+    <Compile Include="Drawing\NodeCollection.cs" />
+    <Compile Include="Drawing\NodeControl.cs" />
+    <Compile Include="Drawing\PhyloEdge.cs" />
+    <Compile Include="Drawing\PhyloTree.cs" />
+    <Compile Include="Drawing\Subgraph.cs" />
+    <Compile Include="Drawing\SubgraphTemplate.cs" />
+    <Compile Include="Drawing\SvgGraphWriter.cs" />
+    <Compile Include="Drawing\Tokens.cs" />
+    <Compile Include="Drawing\VerticalConstraintsForLayeredLayout.cs" />
     <Compile Include="EditingMode.cs" />
-    <Compile Include="GraphViewer.cs" />
+    <Compile Include="Controls\GraphLayoutRoot.cs" />
+    <Compile Include="Controls\GraphViewer.cs" />
     <Compile Include="GvMouseEventArgs.cs" />
     <Compile Include="IInvalidatable.cs" />
+    <Compile Include="Controls\NodeControl.cs" />
     <Compile Include="PointerHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Controls\GraphCanvas.cs" />
     <Compile Include="VEdge.cs" />
     <Compile Include="VLabel.cs" />
     <Compile Include="VNode.cs" />
@@ -129,10 +193,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Drawing\Drawing.csproj">
-      <Project>{c3a58d05-dffb-4e75-a498-d9e1ad9d6fc0}</Project>
-      <Name>Drawing</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MsAGL\MsAGL.csproj">
       <Project>{7078dad3-b1c8-4e99-9c83-dff6647c7cc9}</Project>
       <Name>MsAGL</Name>

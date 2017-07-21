@@ -101,6 +101,7 @@
     <Compile Include="Controls\NavMenuListView.cs" />
     <Compile Include="Controls\PageHeader.xaml.cs" />
     <Compile Include="Helpers\SystemInformationHelpers.cs" />
+    <Compile Include="Models\Employees.cs" />
     <Compile Include="NavMenuItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Triggers\IsTenFootTrigger.cs" />
@@ -150,14 +151,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>5.2.3</Version>
+      <Version>5.3.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MsAGL\Drawing\Drawing.csproj">
-      <Project>{C3A58D05-DFFB-4E75-A498-D9E1AD9D6FC0}</Project>
-      <Name>Drawing</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MsAGL\GraphControl\GraphControl.csproj">
       <Project>{24b80892-9828-4139-8d85-34b9733329ab}</Project>
       <Name>GraphControl</Name>

@@ -3,10 +3,45 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ctl="using:SimpleApp.Controls"
-    xmlns:msagl="using:Msagl.Uwp.UI.GraphControl"
+    xmlns:models="using:SimpleApp.Models"
+    xmlns:msagl="using:Msagl.Uwp.UI.Controls"
+    xmlns:drawing="using:Msagl.Uwp.UI.Drawing"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+
+    <Page.Resources>
+
+        <Style TargetType="drawing:Node">
+            <Setter Property="FontSize" Value="15"></Setter>
+            <Setter Property="Foreground" Value="Black"></Setter>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"></Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <DataTemplate>
+                            <Border Background="#008b8b" CornerRadius="5">
+                                <TextBlock Text="{Binding Name}" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </DataTemplate>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <models:Employees x:Key="Employees">
+            <models:Employee FullName="Elizabeth" EmpId="1" ParentId=""/>
+            <models:Employee FullName="Christina" EmpId="2" ParentId="1"/>
+            <models:Employee FullName="Yang" EmpId="3" ParentId="1"/>
+            <models:Employee FullName="Yoshi" EmpId="4" ParentId="2"/>
+            <models:Employee FullName="Philip" EmpId="5" ParentId="2"/>
+            <models:Employee FullName="Roland" EmpId="6" ParentId="3"/>
+            <models:Employee FullName="Yuonne" EmpId="7" ParentId="3"/>
+        </models:Employees>
+
+    </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <VisualStateManager.VisualStateGroups>
@@ -68,7 +103,8 @@
         </ctl:PageHeader>
 
         <Grid x:Name="ContentContainer" Grid.Row="1" EntranceNavigationTransitionInfo.IsTargetElement="True" Margin="24,0">
-            <msagl:GraphViewer x:Name="graphCanvas" ZoomMode="ZoomToPointer" ></msagl:GraphViewer>
+            <msagl:GraphViewer x:Name="graphViewer" ItemsSource="{Binding}">
+            </msagl:GraphViewer>
         </Grid>
 
         <CommandBar x:Name="bottombar" Grid.Row="2" Visibility="Collapsed" HorizontalContentAlignment="Stretch" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">

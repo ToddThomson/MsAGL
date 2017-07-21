@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 #endregion
 
-namespace Msagl.Uwp.UI.GraphControl
+namespace Msagl.Uwp.UI
 {
     public class ZoomLevels
     {

@@ -10,8 +10,9 @@
 
 #region Namespaces
 
-using Microsoft.Msagl.Drawing;
-using Msagl.Uwp.UI.GraphControl;
+using Msagl.Uwp.UI;
+using Msagl.Uwp.UI.Drawing;
+using Msagl.Uwp.UI.Controls;
 
 using Windows.Graphics.Display;
 using Windows.UI.Xaml;
@@ -38,7 +39,6 @@ namespace SimpleApp.Views
 
         private void GraphViewerPage_Loading( FrameworkElement sender, object args )
         {
-            
         }
 
         private void GraphViewerPage_Loaded(object sender, RoutedEventArgs e)
@@ -59,12 +59,14 @@ namespace SimpleApp.Views
                 bottombar.Visibility = Visibility.Collapsed;
             }
 
-            this.GraphViewer = graphCanvas;
+            this.GraphViewer = graphViewer;
 
             // Create the sample graph...
             Graph graph = new Graph();
 
+            graph.AddNode( new Node( "C" ) );
             graph.AddEdge( "A", "B" );
+
             graph.Attr.LayerDirection = LayerDirection.LR;
 
             GraphViewer.Graph = graph;
