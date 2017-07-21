@@ -39,41 +39,54 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #region Namespaces
 
+using Microsoft.Msagl.Core.Geometry.Curves;
+using Microsoft.Msagl.Core.Layout;
+using Msagl.Uwp.UI.Layout;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.Msagl.Core.Geometry.Curves;
-using Microsoft.Msagl.Core.Layout;
-using Msagl.Uwp.UI.Drawing;
-using Edge = Msagl.Uwp.UI.Drawing.Edge;
-using Ellipse = Microsoft.Msagl.Core.Geometry.Curves.Ellipse;
-using LineSegment = Microsoft.Msagl.Core.Geometry.Curves.LineSegment;
-using Node = Msagl.Uwp.UI.Drawing.Node;
-using Point = Microsoft.Msagl.Core.Geometry.Point;
-using Polyline = Microsoft.Msagl.Core.Geometry.Curves.Polyline;
-using Shape = Msagl.Uwp.UI.Drawing.Shape;
-using Size = Windows.Foundation.Size;
-using Windows.UI.Xaml.Media;
+using Windows.Foundation;
+using Windows.UI;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Shapes;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Windows.UI;
-using Windows.Foundation;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Shapes;
+using Edge = Msagl.Uwp.UI.Layout.Edge;
+using Ellipse = Microsoft.Msagl.Core.Geometry.Curves.Ellipse;
+using LineSegment = Microsoft.Msagl.Core.Geometry.Curves.LineSegment;
+using Node = Msagl.Uwp.UI.Layout.Node;
+using Point = Microsoft.Msagl.Core.Geometry.Point;
+using Polyline = Microsoft.Msagl.Core.Geometry.Curves.Polyline;
+using Shape = Msagl.Uwp.UI.Layout.Shape;
+using Size = Windows.Foundation.Size;
 
 #endregion
 
 namespace Msagl.Uwp.UI
 {
-
     /// <summary>
-    /// 
+    /// Represents a viewer node.
     /// </summary>
     public class VNode : IViewerNode, IInvalidatable
     {
+        #region Events
+
+        /// <summary>
+        /// Occurs when the Collapsed property changes value.
+        /// </summary>
+        public event Action<IViewerNode> IsCollapsedChanged;
+
+        public event EventHandler MarkedForDraggingEvent;
+
+        public event EventHandler UnmarkedForDraggingEvent;
+
+        #endregion
+
         #region Fields
 
+        internal Func<double> PathStrokeThicknessFunc;
         internal Path BoundaryPath;
         internal FrameworkElement FrameworkElementOfNodeForLabel;
         readonly Func<Edge, VEdge> _funcFromDrawingEdgeToVEdge;
@@ -128,6 +141,52 @@ namespace Msagl.Uwp.UI
             }
         }
 
+        internal IEnumerable<FrameworkElement> FrameworkElements
+        {
+            get
+            {
+                if ( FrameworkElementOfNodeForLabel != null )
+                    yield return FrameworkElementOfNodeForLabel;
+
+                if ( BoundaryPath != null )
+                    yield return BoundaryPath;
+
+                if ( _collapseButtonBorder != null )
+                {
+                    yield return _collapseButtonBorder;
+                    yield return _topMarginRect;
+                    yield return _collapseSymbolPath;
+                }
+            }
+        }
+
+        public IEnumerable<IViewerEdge> InEdges
+        {
+            get { return Node.InEdges.Select( e => _funcFromDrawingEdgeToVEdge( e ) ); }
+        }
+
+        public IEnumerable<IViewerEdge> OutEdges
+        {
+            get { return Node.OutEdges.Select( e => _funcFromDrawingEdgeToVEdge( e ) ); }
+        }
+
+        public IEnumerable<IViewerEdge> SelfEdges
+        {
+            get { return Node.SelfEdges.Select( e => _funcFromDrawingEdgeToVEdge( e ) ); }
+        }
+
+        public DrawingObject DrawingObject
+        {
+            get { return Node; }
+        }
+
+        public bool MarkedForDragging { get; set; }
+
+        double PathStrokeThickness
+        {
+            get { return PathStrokeThicknessFunc != null ? PathStrokeThicknessFunc() : Node.Attr.LineWidth; }
+        }
+
         #endregion
 
         #region Constructor(s)
@@ -164,24 +223,72 @@ namespace Msagl.Uwp.UI
 
         #endregion
 
-        internal IEnumerable<FrameworkElement> FrameworkElements
+        #region Public API Methods
+
+        public void SetStrokeFill()
         {
-            get
-            {
-                if ( FrameworkElementOfNodeForLabel != null )
-                    yield return FrameworkElementOfNodeForLabel;
-
-                if ( BoundaryPath != null )
-                    yield return BoundaryPath;
-
-                if ( _collapseButtonBorder != null )
-                {
-                    yield return _collapseButtonBorder;
-                    yield return _topMarginRect;
-                    yield return _collapseSymbolPath;
-                }
-            }
+            throw new NotImplementedException();
         }
+
+        public void Invalidate()
+        {
+            if ( !Node.IsVisible )
+            {
+                foreach ( var fe in FrameworkElements )
+                    fe.Visibility = Visibility.Collapsed;
+
+                return;
+            }
+
+            BoundaryPath.Data = CreatePathFromNodeBoundary();
+
+            Common.PositionFrameworkElement( FrameworkElementOfNodeForLabel, Node.BoundingBox.Center, 1 );
+
+            SetFillAndStroke();
+
+            if ( _subgraph == null )
+                return;
+
+            PositionTopMarginBorder( (Cluster)_subgraph.GeometryNode );
+            double collapseBorderSize = GetCollapseBorderSymbolSize();
+            var collapseButtonCenter = GetCollapseButtonCenter( collapseBorderSize );
+            Common.PositionFrameworkElement( _collapseButtonBorder, collapseButtonCenter, 1 );
+            double w = collapseBorderSize * 0.4;
+            _collapseSymbolPath.Data = CreateCollapseSymbolPath( collapseButtonCenter + new Point( 0, -w / 2 ), w );
+            _collapseSymbolPath.RenderTransform = ((Cluster)_subgraph.GeometryNode).IsCollapsed
+                ? new RotateTransform
+                {
+                    Angle = 180,
+                    CenterX = collapseButtonCenter.X,
+                    CenterY = collapseButtonCenter.Y
+                }
+                : null;
+
+            _topMarginRect.Visibility =
+                _collapseSymbolPath.Visibility =
+                    _collapseButtonBorder.Visibility = Visibility.Visible;
+
+        }
+
+        public override string ToString()
+        {
+            return Node.Id;
+        }
+
+        #endregion
+
+        #region Internal Methods
+
+        internal void DetouchFromCanvas( Canvas graphCanvas )
+        {
+            if ( BoundaryPath != null )
+                graphCanvas.Children.Remove( BoundaryPath );
+
+            if ( FrameworkElementOfNodeForLabel != null )
+                graphCanvas.Children.Remove( FrameworkElementOfNodeForLabel );
+        }
+
+        #endregion
 
         #region Private Methods
 
@@ -203,7 +310,7 @@ namespace Msagl.Uwp.UI
                 Height = cluster.RectangularBoundary.TopMargin
             };
             PositionTopMarginBorder( cluster );
-            SetZIndexAndMouseInteractionsForTopMarginRect();
+            SetZIndexAndPointerInteractionsForTopMarginRect();
         }
 
         void PositionTopMarginBorder( Cluster cluster )
@@ -216,14 +323,13 @@ namespace Msagl.Uwp.UI
                 1 );
         }
 
-        void SetZIndexAndMouseInteractionsForTopMarginRect()
+        void SetZIndexAndPointerInteractionsForTopMarginRect()
         {
             _topMarginRect.PointerEntered +=
                 (
                     ( a, b ) =>
                     {
-                        _collapseButtonBorder.Background =
-                            Common.BrushFromMsaglColor( _subgraph.CollapseButtonColorActive );
+                        _collapseButtonBorder.Background = new SolidColorBrush( _subgraph.CollapseButtonColorActive );
                         _collapseSymbolPath.Stroke = new SolidColorBrush( Colors.Black );
                     }
                     );
@@ -231,7 +337,7 @@ namespace Msagl.Uwp.UI
             _topMarginRect.PointerExited +=
                 ( a, b ) =>
                 {
-                    _collapseButtonBorder.Background = Common.BrushFromMsaglColor( _subgraph.CollapseButtonColorInactive );
+                    _collapseButtonBorder.Background = new SolidColorBrush( _subgraph.CollapseButtonColorInactive );
                     _collapseSymbolPath.Stroke = new SolidColorBrush( Colors.Silver );
                 };
             Canvas.SetZIndex( _topMarginRect, int.MaxValue );
@@ -243,7 +349,7 @@ namespace Msagl.Uwp.UI
             Debug.Assert( collapseBorderSize > 0 );
             _collapseButtonBorder = new Border
             {
-                Background = Common.BrushFromMsaglColor( _subgraph.CollapseButtonColorInactive ),
+                Background = new SolidColorBrush( _subgraph.CollapseButtonColorInactive ),
                 Width = collapseBorderSize,
                 Height = collapseBorderSize,
                 CornerRadius = new CornerRadius( collapseBorderSize / 2 )
@@ -264,21 +370,10 @@ namespace Msagl.Uwp.UI
             };
 
             Canvas.SetZIndex( _collapseSymbolPath, Canvas.GetZIndex( _collapseButtonBorder ) + 1 );
-            _topMarginRect.PointerPressed += TopMarginRectMouseLeftButtonDown;
+            _topMarginRect.PointerPressed += TopMarginRectPointerLeftButtonDown;
         }
 
-        #endregion
-
-        /// <summary>
-        /// </summary>
-        public event Action<IViewerNode> IsCollapsedChanged;
-
-        void InvokeIsCollapsedChanged()
-        {
-            IsCollapsedChanged?.Invoke( this );
-        }
-
-        void TopMarginRectMouseLeftButtonDown( object sender, PointerRoutedEventArgs e )
+        void TopMarginRectPointerLeftButtonDown( object sender, PointerRoutedEventArgs e )
         {
             var pointerInfo = e.GetCurrentPoint( _collapseButtonBorder );
 
@@ -377,13 +472,6 @@ namespace Msagl.Uwp.UI
             }
         }
 
-        internal Func<double> PathStrokeThicknessFunc;
-
-        double PathStrokeThickness
-        {
-            get { return PathStrokeThicknessFunc != null ? PathStrokeThicknessFunc() : Node.Attr.LineWidth; }
-        }
-
         byte GetTransparency( byte t )
         {
             return t;
@@ -392,8 +480,9 @@ namespace Msagl.Uwp.UI
         void SetFillAndStroke()
         {
             byte trasparency = GetTransparency( Node.Attr.Color.A );
-            BoundaryPath.Stroke = Common.BrushFromMsaglColor( 
-                new Msagl.Uwp.UI.Drawing.Color( trasparency, Node.Attr.Color.R, Node.Attr.Color.G, Node.Attr.Color.B ) );
+            BoundaryPath.Stroke = new SolidColorBrush(
+                new Color() { A = trasparency, R = Node.Attr.Color.R, G = Node.Attr.Color.G, B = Node.Attr.Color.B } );
+
             SetBoundaryFill();
 
             BoundaryPath.StrokeThickness = PathStrokeThickness;
@@ -403,14 +492,14 @@ namespace Msagl.Uwp.UI
             if ( textBlock != null )
             {
                 var col = Node.Label.FontColor;
-                textBlock.Foreground = Common.BrushFromMsaglColor( 
-                    new Msagl.Uwp.UI.Drawing.Color( GetTransparency( col.A ), col.R, col.G, col.B ) );
+                textBlock.Foreground = new SolidColorBrush(
+                    new Color() { A = GetTransparency( col.A ), R = col.R, G = col.G, B = col.B } );
             }
         }
 
         void SetBoundaryFill()
         {
-            BoundaryPath.Fill = Common.BrushFromMsaglColor( Node.Attr.FillColor );
+            BoundaryPath.Fill = new SolidColorBrush( Node.Attr.FillColor );
         }
 
         Geometry DoubleCircle()
@@ -556,92 +645,15 @@ namespace Msagl.Uwp.UI
             };
         }
 
-        #region Implementation of IViewerObject
-
-        public DrawingObject DrawingObject
-        {
-            get { return Node; }
-        }
-
-        public bool MarkedForDragging { get; set; }
-
-        public event EventHandler MarkedForDraggingEvent;
-        public event EventHandler UnmarkedForDraggingEvent;
-
         #endregion
 
-        public IEnumerable<IViewerEdge> InEdges
+        #region EventHandlers
+
+        void InvokeIsCollapsedChanged()
         {
-            get { return Node.InEdges.Select( e => _funcFromDrawingEdgeToVEdge( e ) ); }
+            IsCollapsedChanged?.Invoke( this );
         }
 
-        public IEnumerable<IViewerEdge> OutEdges
-        {
-            get { return Node.OutEdges.Select( e => _funcFromDrawingEdgeToVEdge( e ) ); }
-        }
-
-        public IEnumerable<IViewerEdge> SelfEdges
-        {
-            get { return Node.SelfEdges.Select( e => _funcFromDrawingEdgeToVEdge( e ) ); }
-        }
-
-        public void SetStrokeFill()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Invalidate()
-        {
-            if ( !Node.IsVisible )
-            {
-                foreach ( var fe in FrameworkElements )
-                    fe.Visibility = Visibility.Collapsed;
-
-                return;
-            }
-
-            BoundaryPath.Data = CreatePathFromNodeBoundary();
-
-            Common.PositionFrameworkElement( FrameworkElementOfNodeForLabel, Node.BoundingBox.Center, 1 );
-
-            SetFillAndStroke();
-
-            if ( _subgraph == null )
-                return;
-
-            PositionTopMarginBorder( (Cluster)_subgraph.GeometryNode );
-            double collapseBorderSize = GetCollapseBorderSymbolSize();
-            var collapseButtonCenter = GetCollapseButtonCenter( collapseBorderSize );
-            Common.PositionFrameworkElement( _collapseButtonBorder, collapseButtonCenter, 1 );
-            double w = collapseBorderSize * 0.4;
-            _collapseSymbolPath.Data = CreateCollapseSymbolPath( collapseButtonCenter + new Point( 0, -w / 2 ), w );
-            _collapseSymbolPath.RenderTransform = ((Cluster)_subgraph.GeometryNode).IsCollapsed
-                ? new RotateTransform
-                {
-                    Angle = 180,
-                    CenterX = collapseButtonCenter.X,
-                    CenterY = collapseButtonCenter.Y
-                }
-                : null;
-
-            _topMarginRect.Visibility =
-                _collapseSymbolPath.Visibility =
-                    _collapseButtonBorder.Visibility = Visibility.Visible;
-
-        }
-
-        public override string ToString()
-        {
-            return Node.Id;
-        }
-
-        internal void DetouchFromCanvas( Canvas graphCanvas )
-        {
-            if ( BoundaryPath != null )
-                graphCanvas.Children.Remove( BoundaryPath );
-
-            if ( FrameworkElementOfNodeForLabel != null )
-                graphCanvas.Children.Remove( FrameworkElementOfNodeForLabel );
-        }
+        #endregion
     }
 }

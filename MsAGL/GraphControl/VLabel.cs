@@ -41,7 +41,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
 using System.Collections.Generic;
-using Msagl.Uwp.UI.Drawing;
+using Msagl.Uwp.UI.Layout;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Shapes;
@@ -103,7 +103,7 @@ namespace Msagl.Uwp.UI
 
         public void Invalidate()
         {
-            var label = (Msagl.Uwp.UI.Drawing.Label)DrawingObject;
+            var label = (Msagl.Uwp.UI.Layout.Label)DrawingObject;
             Common.PositionFrameworkElement( FrameworkElement, label.Center, 1 );
             var geomLabel = label.GeometryLabel;
 

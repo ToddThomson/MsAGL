@@ -40,7 +40,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #region Namespaces
 
 using System;
-using Msagl.Uwp.UI.Drawing;
+using Msagl.Uwp.UI.Layout;
 using Windows.UI.Xaml;
 using Windows.Foundation;
 using System.Numerics;
@@ -51,13 +51,13 @@ namespace Msagl.Uwp.UI
 {
     internal class ClickCounter
     {
-        readonly Func<Point> mousePosition;
+        readonly Func<Point> pointerPosition;
         internal object ClickedObject;
         internal bool IsRunning { get; private set; }
 
-        internal ClickCounter( Func<Point> mousePosition )
+        internal ClickCounter( Func<Point> pointerPosition )
         {
-            this.mousePosition = mousePosition;
+            this.pointerPosition = pointerPosition;
 
             clickTimer.Tick += TimeTick;
             clickTimer.Interval = TimeSpan.FromMilliseconds( 500 );
@@ -80,7 +80,7 @@ namespace Msagl.Uwp.UI
                 IsRunning = true;
             }
 
-            LastDownClickPosition = this.mousePosition();
+            LastDownClickPosition = this.pointerPosition();
             ClickedObject = objectUnderPointer;
 
             DownCount++;

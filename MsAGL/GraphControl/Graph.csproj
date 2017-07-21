@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{24B80892-9828-4139-8D85-34B9733329AB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Msagl.Uwp.UI</RootNamespace>
+    <AssemblyName>Msagl.Uwp.Graph</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.15063.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.10586.0</TargetPlatformMinVersion>
+    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <PlatformTarget>ARM</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <PlatformTarget>ARM</PlatformTarget>
+    <OutputPath>bin\ARM\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ClickCounter.cs" />
+    <Compile Include="Common.cs" />
+    <Compile Include="Controls\GraphGrid.cs" />
+    <Compile Include="Controls\DragPanel.cs" />
+    <Compile Include="Layout\AttributeBase.cs" />
+    <Compile Include="Layout\ConnectionToGraph.cs" />
+    <Compile Include="Layout\DrawingEnums.cs" />
+    <Compile Include="Layout\DrawingObject.cs" />
+    <Compile Include="Layout\Edge.cs" />
+    <Compile Include="Layout\EdgeAttr.cs" />
+    <Compile Include="Layout\Shapes.cs" />
+    <Compile Include="Layout\LayerDirection.cs" />
+    <Compile Include="Layout\GeometryGraphCreator.cs" />
+    <Compile Include="Layout\Graph.cs" />
+    <Compile Include="Layout\GraphAttr.cs" />
+    <Compile Include="Layout\GraphReader.cs" />
+    <Compile Include="Layout\GraphWriter.cs" />
+    <Compile Include="Layout\HorizontalConstraintsForLayeredLayout.cs" />
+    <Compile Include="Layout\Label.cs" />
+    <Compile Include="Layout\LayerConstraints.cs" />
+    <Compile Include="Layout\Editing\AddEdgeUndoAction.cs" />
+    <Compile Include="Layout\Editing\AddNodeUndoAction.cs" />
+    <Compile Include="Layout\Editing\DelegateForEdge.cs" />
+    <Compile Include="Layout\Editing\DelegateForIViewerObject.cs" />
+    <Compile Include="Layout\Editing\DraggingMode.cs" />
+    <Compile Include="Layout\Editing\EdgeDragUndoRedoAction.cs" />
+    <Compile Include="Layout\Editing\GeometryGraphEditor.cs" />
+    <Compile Include="IEditableObject.cs" />
+    <Compile Include="ILabeledObject.cs" />
+    <Compile Include="IViewer.cs" />
+    <Compile Include="IViewerEdge.cs" />
+    <Compile Include="IViewerGraph.cs" />
+    <Compile Include="IViewerNode.cs" />
+    <Compile Include="IViewerObject.cs" />
+    <Compile Include="Layout\Editing\LayoutEditor.cs" />
+    <Compile Include="Layout\Editing\PointerEventAnalyzer.cs" />
+    <Compile Include="Layout\Editing\NewNodeFactory.cs" />
+    <Compile Include="Layout\Editing\ObjectDragUndoRedoAction.cs" />
+    <Compile Include="Layout\Editing\ObjectUnderPointerChangedArgs.cs" />
+    <Compile Include="Layout\Editing\PolylineCornerType.cs" />
+    <Compile Include="Layout\Editing\RemoveEdgeUndoAction.cs" />
+    <Compile Include="Layout\Editing\RemoveNodeAndoAction.cs" />
+    <Compile Include="Layout\Editing\SiteInsertUndoAction.cs" />
+    <Compile Include="Layout\Editing\SiteRemoveUndoAction.cs" />
+    <Compile Include="Layout\Editing\UndoRedoAction.cs" />
+    <Compile Include="Layout\Editing\UndoRedoActionsList.cs" />
+    <Compile Include="Layout\Editing\VoidDelegate.cs" />
+    <Compile Include="Layout\Node.cs" />
+    <Compile Include="Layout\NodeAttr.cs" />
+    <Compile Include="Layout\NodeBoundaryCurves.cs" />
+    <Compile Include="Layout\NodeCollection.cs" />
+    <Compile Include="Layout\NodeControl.cs" />
+    <Compile Include="Layout\PhyloEdge.cs" />
+    <Compile Include="Layout\PhyloTree.cs" />
+    <Compile Include="Layout\Subgraph.cs" />
+    <Compile Include="Layout\SubgraphTemplate.cs" />
+    <Compile Include="Layout\SvgGraphWriter.cs" />
+    <Compile Include="Layout\Tokens.cs" />
+    <Compile Include="Layout\VerticalConstraintsForLayeredLayout.cs" />
+    <Compile Include="EditingMode.cs" />
+    <Compile Include="Controls\GraphLayoutRoot.cs" />
+    <Compile Include="Controls\GraphViewer.cs" />
+    <Compile Include="GraphViewerPointerEventArgs.cs" />
+    <Compile Include="IInvalidatable.cs" />
+    <Compile Include="Controls\NodeControl.cs" />
+    <Compile Include="PointerHelpers.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Controls\GraphCanvas.cs" />
+    <Compile Include="VEdge.cs" />
+    <Compile Include="VLabel.cs" />
+    <Compile Include="VNode.cs" />
+    <Compile Include="ZoomLevel.cs" />
+    <Compile Include="ZoomMode.cs" />
+    <EmbeddedResource Include="Properties\GraphControl.rd.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+      <Version>5.3.3</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MsAGL\MsAGL.csproj">
+      <Project>{7078dad3-b1c8-4e99-9c83-dff6647c7cc9}</Project>
+      <Name>MsAGL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
+    <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

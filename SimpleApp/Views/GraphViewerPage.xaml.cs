@@ -11,7 +11,7 @@
 #region Namespaces
 
 using Msagl.Uwp.UI;
-using Msagl.Uwp.UI.Drawing;
+using Msagl.Uwp.UI.Layout;
 using Msagl.Uwp.UI.Controls;
 
 using Windows.Graphics.Display;

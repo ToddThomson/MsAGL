@@ -4262,19 +4262,19 @@ namespace Microsoft.Msagl.Layout.LargeGraphLayout
             return _lgData.Levels.Count;
         }
 
-        LgNodeInfo FindClosestNodeInfoForMouseClickOnLevel( Point mouseDownPositionInGraph, int iLevel )
+        LgNodeInfo FindClosestNodeInfoForPointerClickOnLevel( Point pointerPressedPositionInGraph, int iLevel )
         {
             if ( iLevel >= _lgData.Levels.Count ) return null;
             var level = _lgData.Levels[ iLevel ];
             var hitRectWidth = NodeDotWidth( CurrentZoomLevel ) / 2;
-            var rect = new Rectangle( new Size( hitRectWidth, hitRectWidth ), mouseDownPositionInGraph );
+            var rect = new Rectangle( new Size( hitRectWidth, hitRectWidth ), pointerPressedPositionInGraph );
             var intersected = level.NodeInfoTree.GetAllIntersecting( rect );
             if ( !intersected.Any() ) return null;
             double dist = double.PositiveInfinity;
             LgNodeInfo closest = null;
             foreach ( var ni in intersected )
             {
-                var t = (ni.Center - mouseDownPositionInGraph).LengthSquared;
+                var t = (ni.Center - pointerPressedPositionInGraph).LengthSquared;
                 if ( t < dist )
                 {
                     dist = t;
@@ -4284,20 +4284,20 @@ namespace Microsoft.Msagl.Layout.LargeGraphLayout
             return closest;
         }
 
-        LgNodeInfo FindClosestNodeInfoForMouseClickBelowCurrentLevel( Point mouseDownPositionInGraph )
+        LgNodeInfo FindClosestNodeInfoForPointerClickBelowCurrentLevel( Point pointerReleasedPositionInGraph )
         {
             var iLevel = _lgData.GetLevelIndexByScale( CurrentZoomLevel );
             for ( int i = iLevel + 1; i < _lgData.LevelNodeCounts.Count; i++ )
             {
-                LgNodeInfo closest = FindClosestNodeInfoForMouseClickOnLevel( mouseDownPositionInGraph, i );
+                LgNodeInfo closest = FindClosestNodeInfoForPointerClickOnLevel( pointerReleasedPositionInGraph, i );
                 if ( closest != null ) return closest;
             }
             return null;
         }
 
-        public void AnalyzeClick( Point mouseDownPositionInGraph, int downCount )
+        public void AnalyzeClick( Point pointerPressedPositionInGraph, int downCount )
         {
-            var closest = FindClosestNodeInfoForMouseClickBelowCurrentLevel( mouseDownPositionInGraph );
+            var closest = FindClosestNodeInfoForPointerClickBelowCurrentLevel( pointerPressedPositionInGraph );
             if ( closest == null ) return;
             SelectAllEdgesIncidentTo( closest );
             var edges = closest.GeometryNode.Edges.ToList();
@@ -4308,9 +4308,9 @@ namespace Microsoft.Msagl.Layout.LargeGraphLayout
             RunOnViewChange();
         }
 
-        public Node AnalyzeClickForInvisibleNode( Point mouseDownPositionInGraph, int downCount )
+        public Node AnalyzeClickForInvisibleNode( Point pointerPressedPositionInGraph, int downCount )
         {
-            var closest = FindClosestNodeInfoForMouseClickBelowCurrentLevel( mouseDownPositionInGraph );
+            var closest = FindClosestNodeInfoForPointerClickBelowCurrentLevel( pointerPressedPositionInGraph );
             if ( closest == null ) return null;
             SelectAllEdgesIncidentTo( closest );
             var edges = closest.GeometryNode.Edges.ToList();

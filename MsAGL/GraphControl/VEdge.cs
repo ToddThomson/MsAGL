@@ -39,29 +39,28 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #region Namespaces
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
-using Microsoft.Msagl.DebugHelpers;
-using Msagl.Uwp.UI.Controls;
-using Msagl.Uwp.UI.Drawing;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
-using Microsoft.Msagl.Routing;
-using Color = Msagl.Uwp.UI.Drawing.Color;
-using Edge = Msagl.Uwp.UI.Drawing.Edge;
+using Msagl.Uwp.UI.Controls;
+using Msagl.Uwp.UI.Layout;
+
+using System;
+using System.Collections.Generic;
+
+using Windows.UI;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Shapes;
+
+using Edge = Msagl.Uwp.UI.Layout.Edge;
 using Ellipse = Microsoft.Msagl.Core.Geometry.Curves.Ellipse;
 using LineSegment = Microsoft.Msagl.Core.Geometry.Curves.LineSegment;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 using Polyline = Microsoft.Msagl.Core.Geometry.Curves.Polyline;
 using Rectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 using Size = Windows.Foundation.Size;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Shapes;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Controls;
-using Windows.UI;
 
 #endregion
 
@@ -491,12 +490,12 @@ namespace Msagl.Uwp.UI
 
             if ( SourceArrowHeadPath != null )
             {
-                SourceArrowHeadPath.Stroke = SourceArrowHeadPath.Fill = Common.BrushFromMsaglColor( Edge.Attr.Color );
+                SourceArrowHeadPath.Stroke = SourceArrowHeadPath.Fill = new SolidColorBrush( Edge.Attr.Color );
                 SourceArrowHeadPath.StrokeThickness = PathStrokeThickness;
             }
             if ( TargetArrowHeadPath != null )
             {
-                TargetArrowHeadPath.Stroke = TargetArrowHeadPath.Fill = Common.BrushFromMsaglColor( Edge.Attr.Color );
+                TargetArrowHeadPath.Stroke = TargetArrowHeadPath.Fill = new SolidColorBrush( Edge.Attr.Color );
                 TargetArrowHeadPath.StrokeThickness = PathStrokeThickness;
             }
         }
@@ -509,11 +508,11 @@ namespace Msagl.Uwp.UI
 
             foreach ( var style in Edge.Attr.Styles )
             {
-                if ( style == Msagl.Uwp.UI.Drawing.Style.Dotted )
+                if ( style == Msagl.Uwp.UI.Layout.Style.Dotted )
                 {
                     path.StrokeDashArray = new DoubleCollection { 1, 1 };
                 }
-                else if ( style == Msagl.Uwp.UI.Drawing.Style.Dashed )
+                else if ( style == Msagl.Uwp.UI.Layout.Style.Dashed )
                 {
                     var f = DashSize();
                     path.StrokeDashArray = new DoubleCollection { f, f };
@@ -537,16 +536,16 @@ namespace Msagl.Uwp.UI
 
         void SetPathStrokeToPath( Path path )
         {
-            path.Stroke = Common.BrushFromMsaglColor( Edge.Attr.Color );
+            path.Stroke = new SolidColorBrush( Edge.Attr.Color );
             path.StrokeThickness = PathStrokeThickness;
 
             foreach ( var style in Edge.Attr.Styles )
             {
-                if ( style == Msagl.Uwp.UI.Drawing.Style.Dotted )
+                if ( style == Msagl.Uwp.UI.Layout.Style.Dotted )
                 {
                     path.StrokeDashArray = new DoubleCollection { 1, 1 };
                 }
-                else if ( style == Msagl.Uwp.UI.Drawing.Style.Dashed )
+                else if ( style == Msagl.Uwp.UI.Layout.Style.Dashed )
                 {
                     var f = DashSize();
                     path.StrokeDashArray = new DoubleCollection { f, f };

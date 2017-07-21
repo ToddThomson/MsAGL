@@ -61,19 +61,19 @@ namespace Msagl.Uwp.UI
             return new Point( p.X, p.Y );
         }
 
-        public static Brush BrushFromMsaglColor( Msagl.Uwp.UI.Drawing.Color color )
-        {
-            Color brushColor = new Color { A = color.A, B = color.B, G = color.G, R = color.R };
+        //public static Brush BrushFromMsaglColor( Msagl.Uwp.UI.Layout.Color color )
+        //{
+        //    Color brushColor = new Color { A = color.A, B = color.B, G = color.G, R = color.R };
 
-            return new SolidColorBrush( brushColor );
-        }
+        //    return new SolidColorBrush( brushColor );
+        //}
 
-        public static Brush BrushFromMsaglColor( byte colorA, byte colorR, byte colorG, byte colorB )
-        {
-            Color brushColor = new Color { A = colorA, R = colorR, G = colorG, B = colorB };
+        //public static Brush BrushFromMsaglColor( byte colorA, byte colorR, byte colorG, byte colorB )
+        //{
+        //    Color brushColor = new Color { A = colorA, R = colorR, G = colorG, B = colorB };
 
-            return new SolidColorBrush( brushColor );
-        }
+        //    return new SolidColorBrush( brushColor );
+        //}
 
         internal static void PositionFrameworkElement( FrameworkElement frameworkElement, Point center, double scale )
         {

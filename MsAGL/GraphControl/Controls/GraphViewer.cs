@@ -48,15 +48,15 @@ using Microsoft.Msagl.Core;
 using Microsoft.Msagl.Core.Geometry;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
-using Msagl.Uwp.UI.Drawing;
+using Msagl.Uwp.UI.Layout;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
 using Microsoft.Msagl.Miscellaneous;
 using Microsoft.Msagl.Miscellaneous.LayoutEditing;
 
-using DrawingEdge = Msagl.Uwp.UI.Drawing.Edge;
-using ILabeledObject = Msagl.Uwp.UI.Drawing.ILabeledObject;
-using Label = Msagl.Uwp.UI.Drawing.Label;
-using ModifierKeys = Msagl.Uwp.UI.Drawing.ModifierKeys;
+using DrawingEdge = Msagl.Uwp.UI.Layout.Edge;
+using ILabeledObject = Msagl.Uwp.UI.Layout.ILabeledObject;
+using Label = Msagl.Uwp.UI.Layout.Label;
+//using ModifierKeys = Msagl.Uwp.UI.Layout.ModifierKeys;
 using Node = Microsoft.Msagl.Core.Layout.Node;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 using Rectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
@@ -82,6 +82,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using System.Threading.Tasks;
 using Windows.Graphics.Display;
 using System.Collections;
+using Windows.System;
 
 #endregion
 
@@ -167,7 +168,7 @@ namespace Msagl.Uwp.UI.Controls
         /* Thread layoutThread; */
 
         PointerPoint _pointerPressedPoint = null;
-        UwpPoint _objectUnderMouseDetectionLocation;
+        UwpPoint _objectUnderPointerDetectionLocation;
         PointerPoint _dragStartPoint;
         Pointer _graphCanvasCapturedPointer;
         object _objectUnderPointer;
@@ -347,11 +348,6 @@ namespace Msagl.Uwp.UI.Controls
             _rectToFillCanvas.Height = parent.ActualHeight;
         }
 
-        //void GraphCanvasRightMouseUp( object sender, PointerRoutedEventArgs e )
-        //{
-        //    OnPointerReleased( e );
-        //}
-
         void HandleClickForEdge( VEdge vEdge )
         {
             //todo : add a hook
@@ -509,12 +505,7 @@ namespace Msagl.Uwp.UI.Controls
             }
         }
 
-        //void GraphCanvasRightMouseDown( object sender, PointerRoutedEventArgs e )
-        //{
-        //    PointerPressed?.Invoke( this, CreatePointerEventArgs( e ) );
-        //}
-
-        void GraphCanvasPointerWheelChanged( object sender, PointerRoutedEventArgs e )
+        void GraphCanvasMouseWheelChanged( object sender, PointerRoutedEventArgs e )
         {
             var pointerInfo = e.GetCurrentPoint( _graphCanvas );
 
@@ -555,12 +546,12 @@ namespace Msagl.Uwp.UI.Controls
 
         void UpdateHitObjectUnderPointerPressedLocation( UwpPoint pt )
         {
-            _objectUnderMouseDetectionLocation = pt;
+            _objectUnderPointerDetectionLocation = pt;
             // Expand the hit test area by creating a geometry centered on the hit test point.
 
             var rect = new Rect(
-                new UwpPoint( pt.X - MouseHitTolerance, pt.Y - MouseHitTolerance ),
-                new UwpPoint( pt.X + MouseHitTolerance, pt.Y + MouseHitTolerance ) );
+                new UwpPoint( pt.X - PointerHitTolerance, pt.Y - PointerHitTolerance ),
+                new UwpPoint( pt.X + PointerHitTolerance, pt.Y + PointerHitTolerance ) );
             var expandedHitTestArea = new RectangleGeometry()
             {
                 Rect = rect
@@ -642,7 +633,7 @@ namespace Msagl.Uwp.UI.Controls
 
         }
 
-        protected double MouseHitTolerance
+        protected double PointerHitTolerance
         {
             get { return (0.05) * DpiX / CurrentScale; }
         }
@@ -719,7 +710,7 @@ namespace Msagl.Uwp.UI.Controls
             get { return ((MatrixTransform)_graphCanvas.RenderTransform).Matrix.M11; }
         }
 
-        internal MsaglPointerEventArgs CreatePointerEventArgs( PointerRoutedEventArgs e )
+        internal GraphViewerPointerEventArgs CreatePointerEventArgs( PointerRoutedEventArgs e )
         {
             return new GraphViewerPointerEventArgs( e, this );
         }
@@ -762,9 +753,9 @@ namespace Msagl.Uwp.UI.Controls
         /// </summary>
         public event EventHandler<EventArgs> ViewChangeEvent;
 
-        public event EventHandler<MsaglPointerEventArgs> PointerPressed;
-        public event EventHandler<MsaglPointerEventArgs> PointerMoved;
-        public event EventHandler<MsaglPointerEventArgs> PointerReleased;
+        public event EventHandler<GraphViewerPointerEventArgs> PointerPressed;
+        public event EventHandler<GraphViewerPointerEventArgs> PointerMoved;
+        public event EventHandler<GraphViewerPointerEventArgs> PointerReleased;
 
         public event EventHandler<ObjectUnderPointerChangedEventArgs> ObjectUnderPointerChanged;
 
@@ -775,7 +766,7 @@ namespace Msagl.Uwp.UI.Controls
                 // This function can bring a stale object. 
                 var location = PointerHelpers.GetPointerPosition(); // _graphCanvas );
 
-                if ( !(_objectUnderMouseDetectionLocation == location) )
+                if ( !(_objectUnderPointerDetectionLocation == location) )
                     UpdateHitObjectUnderPointerPressedLocation( location );
 
                 return GetIViewerObjectFromObjectUnderPointer( _objectUnderPointer );
@@ -820,39 +811,31 @@ namespace Msagl.Uwp.UI.Controls
 
         public event EventHandler GraphChanged;
 
-        public ModifierKeys ModifierKeys
+        public VirtualKeyModifiers ModifierKeys
         {
             get
             {
-                //FIXME: 
+                VirtualKeyModifiers Keyboard = VirtualKeyModifiers.None;
 
-                ModifierKeys Keyboard = ModifierKeys.None;
                 switch ( Keyboard )
                 {
-                    case ModifierKeys.Alt:
-                        return ModifierKeys.Alt;
-                    case ModifierKeys.Control:
-                        return ModifierKeys.Control;
-                    case ModifierKeys.None:
-                        return ModifierKeys.None;
-                    case ModifierKeys.Shift:
-                        return ModifierKeys.Shift;
-                    case ModifierKeys.Windows:
-                        return ModifierKeys.Windows;
+                    case VirtualKeyModifiers.Control:
+                        return VirtualKeyModifiers.Control;
+
+                    case VirtualKeyModifiers.None:
+                        return VirtualKeyModifiers.None;
+
+                    case VirtualKeyModifiers.Shift:
+                        return VirtualKeyModifiers.Shift;
+
+                    case VirtualKeyModifiers.Windows:
+                        return VirtualKeyModifiers.Windows;
 
                     default:
-                        return ModifierKeys.None;
+                        return VirtualKeyModifiers.None;
                 }
             }
 
-        }
-
-        public Point ScreenToSource( MsaglPointerEventArgs e )
-        {
-            var p = new Point( e.X, e.Y );
-            var m = Transform.Inverse;
-
-            return m * p;
         }
 
         public IEnumerable<IViewerObject> Entities
@@ -880,6 +863,16 @@ namespace Msagl.Uwp.UI.Controls
             }
         }
 
+        static double DpiYStatic
+        {
+            get
+            {
+                if ( _dpiX == 0 )
+                    GetDpi();
+                return _dpiY;
+            }
+        }
+
         static void GetDpi()
         {
             DisplayInformation displayInformation = DisplayInformation.GetForCurrentView();
@@ -898,25 +891,23 @@ namespace Msagl.Uwp.UI.Controls
             get { return DpiYStatic; }
         }
 
-        static double DpiYStatic
-        {
-            get
-            {
-                if ( _dpiX == 0 )
-                    GetDpi();
-                return _dpiY;
-            }
-        }
+        public double LineThicknessForEditing { get; set; }
 
         public void OnDragEnd( IEnumerable<IViewerObject> changedObjects )
         {
             throw new NotImplementedException();
         }
 
-        public double LineThicknessForEditing { get; set; }
+        public Point ScreenToSource( GraphViewerPointerEventArgs e )
+        {
+            var p = new Point( e.X, e.Y );
+            var m = Transform.Inverse;
+
+            return m * p;
+        }
 
         /// <summary>
-        /// The layout editing with the mouse is enabled if and only if this field is set to false
+        /// Gets of sets the value indicating that layout editing is enabled or not.
         /// </summary>
         public bool LayoutEditingEnabled { get; set; }
 
@@ -1218,7 +1209,7 @@ namespace Msagl.Uwp.UI.Controls
         /// </summary>
         /// <param name="drawingNode"></param>
         /// <returns></returns>
-        public IViewerNode CreateIViewerNode( Msagl.Uwp.UI.Drawing.Node drawingNode )
+        public IViewerNode CreateIViewerNode( Msagl.Uwp.UI.Layout.Node drawingNode )
         {
             var frameworkElement = CreateTextBlockForDrawingObj( drawingNode );
             var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin +20;
@@ -1592,7 +1583,7 @@ namespace Msagl.Uwp.UI.Controls
             }
         }
 
-        IViewerNode CreateVNode( Msagl.Uwp.UI.Drawing.Node node )
+        IViewerNode CreateVNode( Msagl.Uwp.UI.Layout.Node node )
         {
             lock ( this )
             {
@@ -1634,7 +1625,7 @@ namespace Msagl.Uwp.UI.Controls
             }
         }
 
-        public FrameworkElement CreateAndRegisterFrameworkElementOfDrawingNode( Msagl.Uwp.UI.Drawing.Node node )
+        public FrameworkElement CreateAndRegisterFrameworkElementOfDrawingNode( Msagl.Uwp.UI.Layout.Node node )
         {
             lock ( this )
                 return drawingObjectsToFrameworkElements[ node ] = CreateTextBlockForDrawingObj( node );
@@ -1655,7 +1646,7 @@ namespace Msagl.Uwp.UI.Controls
 
             if ( rect != null )
             {
-                rect.Fill = Common.BrushFromMsaglColor( _drawingGraph.Attr.BackgroundColor );
+                rect.Fill = new SolidColorBrush( _drawingGraph.Attr.BackgroundColor );
                 rect.Name = "GraphBackgroundRectangle";
 
                 // Temp testing override
@@ -1705,7 +1696,7 @@ namespace Msagl.Uwp.UI.Controls
 
             foreach ( Node msaglNode in geometryGraphUnderLayout.Nodes )
             {
-                var node = (Msagl.Uwp.UI.Drawing.Node)msaglNode.UserData;
+                var node = (Msagl.Uwp.UI.Layout.Node)msaglNode.UserData;
 
                 if ( _graphCanvas.Dispatcher.HasThreadAccess )
                     msaglNode.BoundaryCurve = GetNodeBoundaryCurve( node );
@@ -1806,7 +1797,7 @@ namespace Msagl.Uwp.UI.Controls
             }
         }
 
-        ICurve GetNodeBoundaryCurve( Msagl.Uwp.UI.Drawing.Node node )
+        ICurve GetNodeBoundaryCurve( Msagl.Uwp.UI.Layout.Node node )
         {
             double width, height;
             FrameworkElement fe;
@@ -1849,7 +1840,7 @@ namespace Msagl.Uwp.UI.Controls
             //return new Size( formattedText.Width, formattedText.Height );
         }
 
-        ICurve GetNodeBoundaryCurveByMeasuringText( Msagl.Uwp.UI.Drawing.Node node )
+        ICurve GetNodeBoundaryCurveByMeasuringText( Msagl.Uwp.UI.Layout.Node node )
         {
             double width, height;
             if ( String.IsNullOrEmpty( node.LabelText ) )
@@ -1984,7 +1975,7 @@ namespace Msagl.Uwp.UI.Controls
                 Text = label.Text,
                 FontFamily = new FontFamily( label.FontName ),
                 FontSize = label.FontSize,
-                Foreground = Common.BrushFromMsaglColor( label.FontColor )
+                Foreground = new SolidColorBrush( label.FontColor )
             };
 
             textBlock.Measure( new Size( double.PositiveInfinity, double.PositiveInfinity ) );
@@ -2007,7 +1998,7 @@ namespace Msagl.Uwp.UI.Controls
             }
         }
 
-        public void DrawRubberLine( MsaglPointerEventArgs args )
+        public void DrawRubberLine( GraphViewerPointerEventArgs args )
         {
             DrawRubberLine( ScreenToSource( args ) );
         }
@@ -2050,7 +2041,7 @@ namespace Msagl.Uwp.UI.Controls
             layoutEditor.CleanObstacles();
         }
 
-        public IViewerObject AddNode( Msagl.Uwp.UI.Drawing.Node drawingNode )
+        public IViewerObject AddNode( Msagl.Uwp.UI.Layout.Node drawingNode )
         {
             Graph.AddNode( drawingNode );
             var vNode = CreateVNode( drawingNode );
@@ -2282,7 +2273,7 @@ namespace Msagl.Uwp.UI.Controls
 
         #endregion
 
-        public IViewerNode CreateIViewerNode( Msagl.Uwp.UI.Drawing.Node drawingNode, Point center, object visualElement )
+        public IViewerNode CreateIViewerNode( Msagl.Uwp.UI.Layout.Node drawingNode, Point center, object visualElement )
         {
             if ( _drawingGraph == null )
                 return null;
@@ -2300,7 +2291,7 @@ namespace Msagl.Uwp.UI.Controls
             return vNode;
         }
 
-        void MakeRoomForNewNode( Msagl.Uwp.UI.Drawing.Node drawingNode )
+        void MakeRoomForNewNode( Msagl.Uwp.UI.Layout.Node drawingNode )
         {
             IncrementalDragger incrementalDragger = new IncrementalDragger( 
                 new[] { drawingNode.GeometryNode },
@@ -2311,7 +2302,7 @@ namespace Msagl.Uwp.UI.Controls
 
             foreach ( var n in incrementalDragger.ChangedGraph.Nodes )
             {
-                var dn = (Msagl.Uwp.UI.Drawing.Node)n.UserData;
+                var dn = (Msagl.Uwp.UI.Layout.Node)n.UserData;
                 var vn = drawingObjectsToIViewerObjects[ dn ] as VNode;
 
                 if ( vn != null )
@@ -2320,7 +2311,7 @@ namespace Msagl.Uwp.UI.Controls
 
             foreach ( var n in incrementalDragger.ChangedGraph.Edges )
             {
-                var dn = (Msagl.Uwp.UI.Drawing.Edge)n.UserData;
+                var dn = (Msagl.Uwp.UI.Layout.Edge)n.UserData;
                 var ve = drawingObjectsToIViewerObjects[ dn ] as VEdge;
 
                 if ( ve != null )
@@ -2364,7 +2355,7 @@ namespace Msagl.Uwp.UI.Controls
             _graphCanvas.PointerPressed += GraphCanvasPointerPressed;
             _graphCanvas.PointerMoved += GraphCanvasPointerMoved;
             _graphCanvas.PointerReleased += GraphCanvasPointerReleased;
-            _graphCanvas.PointerWheelChanged += GraphCanvasPointerWheelChanged;
+            _graphCanvas.PointerWheelChanged += GraphCanvasMouseWheelChanged;
         }
 
         private void UpdateVisualStates( bool useTransitions )

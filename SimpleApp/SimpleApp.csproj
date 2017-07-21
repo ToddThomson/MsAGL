@@ -155,9 +155,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MsAGL\GraphControl\GraphControl.csproj">
+    <ProjectReference Include="..\MsAGL\GraphControl\Graph.csproj">
       <Project>{24b80892-9828-4139-8d85-34b9733329ab}</Project>
-      <Name>GraphControl</Name>
+      <Name>Graph</Name>
     </ProjectReference>
     <ProjectReference Include="..\MsAGL\MsAGL\MsAGL.csproj">
       <Project>{7078dad3-b1c8-4e99-9c83-dff6647c7cc9}</Project>

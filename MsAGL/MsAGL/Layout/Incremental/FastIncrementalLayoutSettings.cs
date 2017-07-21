@@ -173,8 +173,7 @@ namespace Microsoft.Msagl.Layout.Incremental {
 
         /// <summary>
         /// Add a LockPosition for each node whose position you want to keep fixed.  LockPosition allows you to,
-        /// for example, do interactive mouse
-        ///  dragging.
+        /// for example, do interactive dragging.
         /// We return the LinkedListNode which you can store together with your local Node object so that a RemoveLock operation can be performed in
         /// constant time.
         /// </summary>
@@ -189,7 +188,7 @@ namespace Microsoft.Msagl.Layout.Incremental {
 
         /// <summary>
         /// Add a LockPosition for each node whose position you want to keep fixed.  LockPosition allows you to,
-        /// for example, do interactive mouse dragging.
+        /// for example, do interactive dragging.
         /// We return the LinkedListNode which you can store together with your local Node object so that a RemoveLock operation can be performed in
         /// constant time.
         /// </summary>
@@ -233,7 +232,7 @@ namespace Microsoft.Msagl.Layout.Incremental {
         }
 
         /// <summary>
-        /// restart layout, use e.g. after a mouse drag or non-structural change to the graph
+        /// Restart layout, use e.g. after a drag operation or non-structural change to the graph.
         /// </summary>
         public void ResetLayout()
         {
